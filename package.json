@@ -1,0 +1,16 @@
+{
+  "name": "electron-supabase-auth",
+  "version": "1.0.0",
+  "main": "src/main/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "NODE_ENV=development electron ."
+  },
+  "devDependencies": {
+    "electron": "^37.2.6"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.35.0",
+    "dotenv": "^16.0.0"
+  }
+}
