@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Market Monitor</title>
+  <link rel="stylesheet" href="dashboard-style.css">
+</head>
+<body>
+  <!-- Orderbook Modal Section -->
+  <div id="orderbookModal">
+    <div class="modal-header">
+      <h3 id="modalTitle">Order Book</h3>
+      <div> 
+          <button id="currencySwitchBtn">Switch to USD</button>
+          <button id="closeOrderbookModal">Close</button>
+      </div>
+    </div>  
+    <div id="modalContent" style="max-height: 70vh; overflow-y: auto;"></div>
+  </div>
+
+  <!-- Header Section -->
+  <div id="marketHeader" class="market-header">
+    <div class="header-data">
+      <div class="header-item"><strong>BTC/IDR:</strong> <span id="btcIdr">-</span></div>
+      <div class="header-item"><strong>BTC/USDT:</strong> <span id="btcUsdt">-</span></div>
+      <div class="header-item"><strong>USDT/IDR:</strong> <span id="usdtIdr">-</span></div>
+    </div>
+    <button id="management-button">Dashboard Management</button>
+  </div>
+  
+  <!-- Main Content -->
+  <div class="dashboard-container">
+    <div class="exchange-section">
+      <div class="exchange-header">
+        <div class="header-left">
+          <h2 class="exchange-title">Binance</h2>
+        </div>
+        <div class="search-container">
+          <input type="text" id="search-binance" class="search-input" placeholder="Search..." />
+        </div>
+      </div>
+      <div class="table-container">
+        <table class="crypto-table">
+          <thead>
+            <tr>
+              <th>Pair Coin</th>
+              <th>Harga IDX</th>
+              <th>Harga Binance</th>
+              <th>Gap</th>
+            </tr>
+          </thead>
+          <tbody id="binanceTableBody">
+            <tr><td colspan="4" class="no-data">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Indodax vs Huobi -->
+    <div class="exchange-section">
+      <div class="exchange-header">
+        <div class="header-left">
+          <h2 class="exchange-title">Huobi</h2>
+        </div>
+        <div class="search-container">
+          <input type="text" id="search-huobi" class="search-input" placeholder="Search..." />
+        </div>
+      </div>
+      <div class="table-container">
+        <table class="crypto-table">
+          <thead>
+            <tr>
+              <th>Pair Coin</th>
+              <th>Harga IDX</th>
+              <th>Harga Huobi</th>
+              <th>Gap</th>
+            </tr>
+          </thead>
+          <tbody id="huobiTableBody">
+            <tr><td colspan="4" class="no-data">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Indodax vs Gate.io -->
+    <div class="exchange-section">
+      <div class="exchange-header">
+        <div class="header-left">
+          <h2 class="exchange-title">Gate.io</h2>
+        </div>
+        <div class="search-container">
+          <input type="text" id="search-gateio" class="search-input" placeholder="Search..." />
+        </div>
+      </div>
+      <div class="table-container">
+        <table class="crypto-table">
+          <thead>
+            <tr>
+              <th>Pair Coin</th>
+              <th>Harga IDX</th>
+              <th>Harga Gate.io</th>
+              <th>Gap</th>
+            </tr>
+          </thead>
+          <tbody id="gateioTableBody">
+            <tr><td colspan="4" class="no-data">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Indodax vs Kucoin -->
+    <div class="exchange-section">
+      <div class="exchange-header">
+        <div class="header-left">
+          <h2 class="exchange-title">Kucoin</h2>
+        </div>
+        <div class="search-container">
+          <input type="text" id="search-kucoin" class="search-input" placeholder="Search..." />
+        </div>
+      </div>
+      <div class="table-container">
+        <table class="crypto-table">
+          <thead>
+            <tr>
+              <th>Pair Coin</th>
+              <th>Harga IDX</th>
+              <th>Harga Kucoin</th>
+              <th>Gap</th>
+            </tr>
+          </thead>
+          <tbody id="kucoinTableBody">
+            <tr><td colspan="4" class="no-data">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Indodax vs Mexc -->
+    <div class="exchange-section">
+      <div class="exchange-header">
+        <div class="header-left">
+          <h2 class="exchange-title">Mexc</h2>
+        </div>
+        <div class="search-container">
+          <input type="text" id="search-mexc" class="search-input" placeholder="Search..." />
+        </div>
+      </div>
+      <div class="table-container">
+        <table class="crypto-table">
+          <thead>
+            <tr>
+              <th>Pair Coin</th>
+              <th>Harga IDX</th>
+              <th>Harga Mexc</th>
+              <th>Gap</th>
+            </tr>
+          </thead>
+          <tbody id="mexcTableBody">
+            <tr><td colspan="4" class="no-data">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Indodax vs Okx -->
+    <div class="exchange-section">
+      <div class="exchange-header">
+        <div class="header-left">
+          <h2 class="exchange-title">OKX</h2>
+        </div>
+        <div class="search-container">
+          <input type="text" id="search-okx" class="search-input" placeholder="Search..." />
+        </div>
+      </div>
+      <div class="table-container">
+        <table class="crypto-table">
+          <thead>
+            <tr>
+              <th>Pair Coin</th>
+              <th>Harga IDX</th>
+              <th>Harga Okx</th>
+              <th>Gap</th>
+            </tr>
+          </thead>
+          <tbody id="okxTableBody">
+            <tr><td colspan="4" class="no-data">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Indodax vs Bitget -->
+    <div class="exchange-section">
+      <div class="exchange-header">
+        <div class="header-left">
+          <h2 class="exchange-title">Bitget</h2>
+        </div>
+        <div class="search-container">
+          <input type="text" id="search-bitget" class="search-input" placeholder="Search..." />
+        </div>
+      </div>
+      <div class="table-container">
+        <table class="crypto-table">
+          <thead>
+            <tr>
+              <th>Pair Coin</th>
+              <th>Harga IDX</th>
+              <th>Harga Bitget</th>
+              <th>Gap</th>
+            </tr>
+          </thead>
+          <tbody id="bitgetTableBody">
+            <tr><td colspan="4" class="no-data">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Indodax vs Bybit -->
+    <div class="exchange-section">
+      <div class="exchange-header">
+        <div class="header-left">
+          <h2 class="exchange-title">Bybit</h2>
+        </div>
+        <div class="search-container">
+          <input type="text" id="search-bybit" class="search-input" placeholder="Search..." />
+        </div>
+      </div>
+      <div class="table-container">
+        <table class="crypto-table">
+          <thead>
+            <tr>
+              <th>Pair Coin</th>
+              <th>Harga IDX</th>
+              <th>Harga Bybit</th>
+              <th>Gap</th>
+            </tr>
+          </thead>
+          <tbody id="bybitTableBody">
+            <tr><td colspan="4" class="no-data">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <script src="dashboard-renderer.js"></script>
+</body>
+</html>

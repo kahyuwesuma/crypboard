@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Manajemen Target Symbols</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			padding: 20px;
+			background: #f4f4f4;
+		}
+		h1 {
+			text-align: center;
+		}
+		table {
+			width: 100%;
+			border-collapse: collapse;
+			margin-bottom: 20px;
+		}
+		table, th, td {
+			border: 1px solid #ccc;
+		}
+		th, td {
+			padding: 10px;
+			text-align: center;
+		}
+		form {
+			margin-bottom: 15px;
+		}
+		input, button {
+			padding: 8px;
+			margin-right: 5px;
+		}
+		button {
+			cursor: pointer;
+		}
+	</style>
+</head>
+<body>
+	<h1>Manajemen Target Symbols</h1>
+	<button id="management-button">Dashboard</button>
+
+	<!-- Form Tambah -->
+	<form id="formAdd">
+		<input type="text" id="addSymbol" placeholder="Symbol baru, contoh: TRXUSDT" required>
+		<button type="submit">Tambah Symbol</button>
+	</form>
+
+	<!-- Form Update -->
+	<form id="formUpdate">
+		<input type="text" id="oldSymbol" placeholder="Symbol lama" required>
+		<input type="text" id="newSymbol" placeholder="Symbol baru" required>
+		<button type="submit">Update Symbol</button>
+	</form>
+
+	<!-- Tabel -->
+	<table>
+		<thead>
+			<tr>
+				<th>No</th>
+				<th>Symbol</th>
+				<th>Aksi</th>
+			</tr>
+		</thead>
+		<tbody id="symbolTableBody">
+			<!-- Data di-render via JS -->
+		</tbody>
+	</table>
+
+	<script src="management-renderer.js"></script>
+</body>
+</html>

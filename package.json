@@ -1,16 +1,22 @@
 {
-  "name": "electron-supabase-auth",
+  "name": "1-crypto-app-new-stack",
   "version": "1.0.0",
+  "description": "",
   "main": "src/main/main.js",
   "scripts": {
-    "start": "electron .",
-    "dev": "NODE_ENV=development electron ."
+    "start": "electron ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.11.0",
+    "electron": "^37.2.5",
+    "google-protobuf": "^3.21.4",
+    "pako": "^2.1.0",
+    "ws": "^8.18.3"
   },
   "devDependencies": {
-    "electron": "^37.2.6"
-  },
-  "dependencies": {
-    "@supabase/supabase-js": "^2.35.0",
-    "dotenv": "^16.0.0"
+    "protobufjs": "^7.5.3"
   }
 }

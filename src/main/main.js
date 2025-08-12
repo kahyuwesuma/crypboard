@@ -1,41 +1,32 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
-const path = require('path');
-const authService = require('../service/authService');
+//main.js
+const { app, ipcMain } = require('electron');
+const { initializeDashboard, createDashboardWindow } = require('../dashboard/dashboard-main');
+const { initializeManagement, createManagementWindow } = require('../management/management-main');
 
-let win; 
+let currentWindow = null; // simpan window aktif
 
-function createWindow() {
-  win = new BrowserWindow({
-    width: 900,
-    height: 600,
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js'), // preload optional
-      nodeIntegration: true,
-      contextIsolation: false
-    }
-  });
-
-  win.loadFile(path.join(__dirname, '../renderer/index.html'));
-
+async function startApp() {
+  currentWindow = createDashboardWindow();
+  initializeDashboard(currentWindow);
 }
 
-app.whenReady().then(() => {
-  createWindow();
+ipcMain.on('navigate', (event, target) => {
+  if (currentWindow) {
+    currentWindow.close(); // tutup yang lama
+    currentWindow = null;
+  }
 
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
-  });
+  if (target === 'dashboard') {
+    currentWindow = createDashboardWindow();
+    initializeDashboard(currentWindow);
+  } else if (target === 'manajemen') {
+    currentWindow = createManagementWindow();
+    initializeManagement(currentWindow);
+  }
 });
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
 
-ipcMain.handle('login', async (event, { email, password }) => {
-  try {
-    const data = await authService.login(email, password);
-    return { success: true, data };
-  } catch (error) {
-    return { success: false, error: error.message };
-  }
-});
+app.whenReady().then(startApp);

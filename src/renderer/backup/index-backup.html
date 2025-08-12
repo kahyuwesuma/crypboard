@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Market Monitor</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: darkblue;
+      color: #ffffff;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .market-header {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 12px 16px;
+      flex-shrink: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .header-data {
+      display: flex;
+      gap: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .header-item {
+      color: #4ade80;
+    }
+
+    .header-item strong {
+      color: #ffffff;
+      margin-right: 4px;
+    }
+
+    .dashboard-container {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 6px;
+      padding: 8px;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .exchange-section {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      padding: 8px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .exchange-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      flex-shrink: 0;
+    }
+
+    .exchange-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .coin-count {
+      background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 0.65rem;
+      font-weight: 500;
+    }
+
+    .table-container {
+      flex: 1;
+      overflow: auto;
+      min-height: 0;
+    }
+
+    .crypto-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.65rem;
+    }
+
+    .crypto-table th {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 5px 3px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .crypto-table td {
+      padding: 3px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 0.6rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: center;
+    }
+
+    .crypto-table tr:hover td {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .symbol-cell {
+      font-weight: 600;
+      color: #4ade80;
+      max-width: 50px;
+      text-align: left;
+    }
+
+    .price-cell {
+      font-weight: 500;
+      color: #60a5fa;
+      max-width: 70px;
+    }
+
+    .gap-cell {
+      font-weight: 600;
+      text-align: center;
+      border-radius: 3px;
+      max-width: 45px;
+      padding: 2px;
+    }
+
+    .gap-positive {
+      background: rgba(74, 222, 128, 0.2);
+      color: #4ade80;
+    }
+
+    .gap-negative {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+    }
+
+    .gap-neutral {
+      background: rgba(156, 163, 175, 0.2);
+      color: #9ca3af;
+    }
+
+    .loading-state {
+      grid-column: 1 / -1;
+      grid-row: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.8rem;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #4ade80;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 15px;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.6rem;
+    }
+
+    /* Custom scrollbar */
+    .table-container::-webkit-scrollbar {
+      width: 3px;
+    }
+
+    .table-container::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+    }
+
+    .table-container::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 2px;
+    }
+
+    .table-container::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    @media (max-width: 1200px) {
+      .dashboard-container {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(4, 1fr);
+      }
+      
+      .header-data {
+        flex-direction: column;
+        gap: 8px;
+        text-align: right;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: repeat(8, 1fr);
+      }
+      
+      .market-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      
+      .header-data {
+        flex-direction: row;
+        gap: 15px;
+        font-size: 0.7rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="marketHeader" class="market-header">
+    <div class="header-data">
+      <div class="header-item"><strong>BTC/IDR:</strong> <span id="btcIdr">-</span></div>
+      <div class="header-item"><strong>BTC/USDT:</strong> <span id="btcUsdt">-</span></div>
+      <div class="header-item"><strong>USDT/IDR:</strong> <span id="usdtIdr">-</span></div>
+    </div>
+  </div>
+  
+  <div class="dashboard-container">
+    <!-- Indodax vs Binance -->
+    <div class="exchange-section">
+      <div class="exchange-header">
+        <h2 class="exchange-title">Binance</h2>
+        <span class="coin-count" id="binanceCount">0</span>
+      </div>
+      <div class="table-container">
+        <table class="crypto-table">
+          <thead>
+            <tr>
+              <th>Pair Coin</th>
+              <th>Harga IDX</th>
+              <th>Harga Binance</th>
+              <th>Gap</th>
+            </tr>
+          </thead>
+          <tbody id="binanceTableBody">
+            <tr><td colspan="4" class="no-data">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Indodax vs Huobi -->
+    <div class="exchange-section">
+      <div class="exchange-header">
+        <h2 class="exchange-title">Huobi</h2>
+        <span class="coin-count" id="huobiCount">0</span>
+      </div>
+      <div class="table-container">
+        <table class="crypto-table">
+          <thead>
+            <tr>
+              <th>Pair Coin</th>
+              <th>Harga IDX</th>
+              <th>Harga Huobi</th>
+              <th>Gap</th>
+            </tr>
+          </thead>
+          <tbody id="huobiTableBody">
+            <tr><td colspan="4" class="no-data">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Indodax vs Gate.io -->
+    <div class="exchange-section">
+      <div class="exchange-header">
+        <h2 class="exchange-title">Gate.io</h2>
+        <span class="coin-count" id="gateioCount">0</span>
+      </div>
+      <div class="table-container">
+        <table class="crypto-table">
+          <thead>
+            <tr>
+              <th>Pair Coin</th>
+              <th>Harga IDX</th>
+              <th>Harga Gate.io</th>
+              <th>Gap</th>
+            </tr>
+          </thead>
+          <tbody id="gateioTableBody">
+            <tr><td colspan="4" class="no-data">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Indodax vs Kucoin -->
+    <div class="exchange-section">
+      <div class="exchange-header">
+        <h2 class="exchange-title">Kucoin</h2>
+        <span class="coin-count" id="kucoinCount">0</span>
+      </div>
+      <div class="table-container">
+        <table class="crypto-table">
+          <thead>
+            <tr>
+              <th>Pair Coin</th>
+              <th>Harga IDX</th>
+              <th>Harga Kucoin</th>
+              <th>Gap</th>
+            </tr>
+          </thead>
+          <tbody id="kucoinTableBody">
+            <tr><td colspan="4" class="no-data">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Indodax vs Mexc -->
+    <div class="exchange-section">
+      <div class="exchange-header">
+        <h2 class="exchange-title">MEXC</h2>
+        <span class="coin-count" id="mexcCount">0</span>
+      </div>
+      <div class="table-container">
+        <table class="crypto-table">
+          <thead>
+            <tr>
+              <th>Pair Coin</th>
+              <th>Harga IDX</th>
+              <th>Harga MEXC</th>
+              <th>Gap</th>
+            </tr>
+          </thead>
+          <tbody id="mexcTableBody">
+            <tr><td colspan="4" class="no-data">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Indodax vs Okx -->
+    <div class="exchange-section">
+      <div class="exchange-header">
+        <h2 class="exchange-title">OKX</h2>
+        <span class="coin-count" id="okxCount">0</span>
+      </div>
+      <div class="table-container">
+        <table class="crypto-table">
+          <thead>
+            <tr>
+              <th>Pair Coin</th>
+              <th>Harga IDX</th>
+              <th>Harga OKX</th>
+              <th>Gap</th>
+            </tr>
+          </thead>
+          <tbody id="okxTableBody">
+            <tr><td colspan="4" class="no-data">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Indodax vs Bitget -->
+    <div class="exchange-section">
+      <div class="exchange-header">
+        <h2 class="exchange-title">Bitget</h2>
+        <span class="coin-count" id="bitgetCount">0</span>
+      </div>
+      <div class="table-container">
+        <table class="crypto-table">
+          <thead>
+            <tr>
+              <th>Pair Coin</th>
+              <th>Harga IDX</th>
+              <th>Harga Bitget</th>
+              <th>Gap</th>
+            </tr>
+          </thead>
+          <tbody id="bitgetTableBody">
+            <tr><td colspan="4" class="no-data">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Indodax vs Bybit -->
+    <div class="exchange-section">
+      <div class="exchange-header">
+        <h2 class="exchange-title">Bybit</h2>
+        <span class="coin-count" id="bybitCount">0</span>
+      </div>
+      <div class="table-container">
+        <table class="crypto-table">
+          <thead>
+            <tr>
+              <th>Pair Coin</th>
+              <th>Harga IDX</th>
+              <th>Harga Bybit</th>
+              <th>Gap</th>
+            </tr>
+          </thead>
+          <tbody id="bybitTableBody">
+            <tr><td colspan="4" class="no-data">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
