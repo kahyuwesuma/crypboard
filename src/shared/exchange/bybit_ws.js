@@ -42,7 +42,7 @@ async function getActiveBybitSymbols() {
 }
 
 let lastPrices = {};
-
+let currentBybitWS = null;
 /**
  * Start WebSocket ke Bybit untuk banyak simbol spot
  * @param {string[]} targetSymbols - Daftar simbol yang ingin disubscribe (misal: ['BTCUSDT', 'ETHUSDT'])
@@ -59,6 +59,7 @@ async function startBybitWS(targetSymbols, callback) {
   console.log(`[Bybit] Total simbol aktif yang disubscribe: ${filtered.length}`);
 
   const ws = new WebSocket(socketUrl);
+  currentBybitWS = ws; // simpan untuk stop nanti
 
   ws.on('open', () => {
     const chunkSize = 10;
@@ -69,7 +70,6 @@ async function startBybitWS(targetSymbols, callback) {
         args: chunk
       };
       ws.send(JSON.stringify(subMsg));
-      // console.log('[Bybit] Subscribed to:', chunk);
     }
   });
 
@@ -107,9 +107,17 @@ async function startBybitWS(targetSymbols, callback) {
 
   ws.on('close', () => {
     console.warn('[Bybit] Connection closed');
-    // Optional: Reconnect logic can be added here
   });
 }
+
+function stopBybitWS() {
+  if (currentBybitWS && currentBybitWS.readyState === WebSocket.OPEN) {
+    currentBybitWS.close(1000, 'Manual stop');
+    console.log('[Bybit] Price stream stopped manually');
+  }
+  currentBybitWS = null;
+}
+
 let currentBybitOrderbookWS = null;
 let reconnectBybitTimer = null;
 let currentBybitSymbol = null;
@@ -247,4 +255,4 @@ function closeBybitOrderbookWS() {
   console.log('[Bybit] Orderbook connection closed manually');
 }
 
-module.exports = { startBybitWS, getBybitOrderbook, closeBybitOrderbookWS };
+module.exports = { startBybitWS, stopBybitWS, getBybitOrderbook, closeBybitOrderbookWS };

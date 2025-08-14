@@ -1,0 +1,425 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1e1e2e 0%, #2d1b69 100%);
+    color: #ffffff;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 30px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+#management-button {
+    background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    margin-bottom: 25px;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+#management-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Form Styling */
+#formAdd {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+#addSymbol {
+    flex: 1;
+    min-width: 250px;
+    padding: 12px 16px;
+    font-size: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: #ffffff;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+#addSymbol::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+#addSymbol:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #4ade80;
+    box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.2);
+}
+
+#formAdd button {
+    background: linear-gradient(45deg, #4ade80 0%, #16a34a 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+#formAdd button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(74, 222, 128, 0.3);
+}
+
+/* Search Input */
+#searchSymbol {
+    width: 100%;
+    max-width: 400px;
+    padding: 12px 16px;
+    font-size: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: #ffffff;
+    outline: none;
+    margin-bottom: 20px;
+    transition: all 0.2s ease;
+}
+
+#searchSymbol::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+#searchSymbol:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #4ade80;
+    box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.2);
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    table-layout: fixed;
+}
+
+thead {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+th {
+    color: white;
+    padding: 16px 12px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+}
+
+/* Fixed column widths */
+th:nth-child(1), td:nth-child(1) { 
+    width: 8%; 
+    min-width: 50px; 
+}
+th:nth-child(2), td:nth-child(2) { 
+    width: 15%; 
+    min-width: 100px; 
+}
+th:nth-child(3), td:nth-child(3) { 
+    width: 20%; 
+    min-width: 120px; 
+}
+th:nth-child(4), td:nth-child(4) { 
+    width: 52%; 
+    min-width: 280px; 
+}
+
+td {
+    padding: 14px 12px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+    vertical-align: middle;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Symbol column - left align for better readability */
+td:nth-child(2) {
+    text-align: left;
+    font-weight: 600;
+    color: #4ade80;
+    font-family: 'Courier New', monospace;
+}
+
+tbody tr {
+    transition: all 0.2s ease;
+}
+
+tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    transform: scale(1.01);
+}
+
+tbody tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* Sort Button */
+#sortStatusBtn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    margin-left: 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#sortStatusBtn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+/* Action Buttons */
+.action-btn {
+    background: linear-gradient(45deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin: 2px;
+}
+
+.action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+}
+
+.action-btn.edit {
+    background: linear-gradient(45deg, #f59e0b 0%, #d97706 100%);
+}
+
+.action-btn.edit:hover {
+    box-shadow: 0 4px 8px rgba(245, 158, 11, 0.3);
+}
+
+.action-btn.toggle {
+    background: linear-gradient(45deg, #8b5cf6 0%, #7c3aed 100%);
+}
+
+.action-btn.toggle:hover {
+    box-shadow: 0 4px 8px rgba(139, 92, 246, 0.3);
+}
+
+/* Status indicators */
+.status-active {
+    color: #4ade80;
+    font-weight: 600;
+    background: rgba(74, 222, 128, 0.2);
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.status-inactive {
+    color: #ef4444;
+    font-weight: 600;
+    background: rgba(239, 68, 68, 0.2);
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+/* Sort Button */
+#sortStatusBtn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    margin-left: 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#sortStatusBtn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+@media (max-width: 768px) {
+    body {
+        padding: 12px;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+    }
+
+    #formAdd {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    #addSymbol {
+        min-width: unset;
+        margin-bottom: 10px;
+    }
+
+    table {
+        font-size: 0.8rem;
+    }
+
+    th {
+        padding: 12px 8px;
+        font-size: 0.75rem;
+    }
+
+    td {
+        padding: 10px 6px;
+        font-size: 0.75rem;
+    }
+
+    .action-btn {
+        padding: 6px 12px;
+        font-size: 0.7rem;
+        margin: 1px;
+    }
+}
+
+@media (max-width: 480px) {
+	*{
+		font-size: 0.5rem;
+	}
+    #formAdd {
+        padding: 15px;
+    }
+
+    table {
+        /*font-size: 0.5rem;*/
+    }
+
+    th {
+        padding: 10px 6px;
+        /*font-size: 0.4rem;*/
+    }
+
+    td {
+        padding: 8px 4px;
+        /*font-size: 0.4rem;*/
+    }
+
+    .action-btn {
+        padding: 4px 8px;
+        /*font-size: 0.4rem;*/
+    }
+    #sortStatusBtn {
+    	/*font-size: 0.4rem;*/
+    }
+}
+
+/* Loading and empty states */
+.loading-state {
+    text-align: center;
+    padding: 40px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1rem;
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #4ade80;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 10px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9rem;
+}
+
+/* Tambahkan di CSS kamu */
+/* Alert di tengah halaman dengan fade */
+/* Alert pojok kanan atas dengan fade */
+.custom-alert {
+    position: fixed;
+    top: 20px;
+    left: 20px; /* pojok kanan atas */
+    background: rgba(30, 30, 46, 0.95); /* mirip warna theme halaman, semi-transparent */
+    color: #ffffff; /* default putih untuk teks (diubah sesuai type) */
+    padding: 12px 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    font-weight: 500;
+    font-size: 0.9rem;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+    transform: translateX(-30px);
+}
+
+.custom-alert.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* hanya ubah warna teks */
+.custom-alert.error {
+    color: #ef4444; /* merah */
+}
+
+.custom-alert.success {
+    color: #4ade80; /* hijau */
+}
+
+

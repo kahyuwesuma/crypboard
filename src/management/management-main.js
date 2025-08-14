@@ -1,7 +1,9 @@
 const path = require('path')
+const fs = require('fs');
 const { ipcMain, BrowserWindow } = require('electron')
-const { targetSymbols } = require('../core/config')
-
+const { allSymbols } = require('../shared/utils/helper')
+const symbolsFile = path.join(__dirname, '../storage/symbols.json');
+const symbols = allSymbols();
 let win;
 function initializeManagement() {
 	ipcMain.removeHandler('management:get-all');
@@ -9,39 +11,82 @@ function initializeManagement() {
 	ipcMain.removeHandler('management:update');
 	ipcMain.removeHandler('management:delete');
 	ipcMain.handle('management:get-all', () => {
-		return targetSymbols;
+		return symbols;
 	});
 
 	ipcMain.handle('management:add', (event, symbol) => {
-		if (!symbol || typeof symbol !== 'string') {
-			return { success: false, message: 'Invalid symbol' };
-		}
-		if (targetSymbols.includes(symbol)) {
-			return { success: false, message: 'Symbol already exists' };
-		}
-		targetSymbols.push(symbol);
-		return { success: true, data: targetSymbols };
+	  // Cek duplikasi
+	  if (symbols.find(s => s.symbol === symbol)) {
+	    return { success: false, message: 'Symbol already exists' };
+	  }
+
+	symbols.unshift({ symbol, active: false });
+
+	  // Simpan ke file JSON
+	  try {
+	    fs.writeFileSync(symbolsFile, JSON.stringify(symbols, null, 2));
+	    console.log(`Berhasil menambahkan symbol: ${symbol}`);
+	    return { message: `Berhasil menambahkan symbol: ${symbol}`,success: true, data: symbols };
+	  } catch (err) {
+	    console.warn('Failed to save symbols.json', err);
+	    return { success: false, message: 'Gaga menambahkan symbol', error: err };
+	  }
 	});
 
-	ipcMain.handle('management:update', (event, oldSymbol, newSymbol) => {
-		const index = targetSymbols.indexOf(oldSymbol);
-		if (index === -1) {
-			return { success: false, message: 'Old symbol not found' };
-		}
-		if (targetSymbols.includes(newSymbol)) {
-			return { success: false, message: 'New symbol already exists' };
-		}
-		targetSymbols[index] = newSymbol;
-		return { success: true, data: targetSymbols };
+	ipcMain.handle('management:update', (event, updatedSymbol) => {
+	  // updatedSymbol bisa { symbol: 'BTCUSDT', active: true } atau { symbol: 'BTCUSDT', newSymbol: 'ETHUSDT' }
+
+	  const index = symbols.findIndex(s => s.symbol === updatedSymbol.symbol);
+	  if (index === -1) {
+	    return { success: false, message: 'Symbol tidak ditemukan' };
+	  }
+
+	  // Update hanya active jika properti active ada
+	  if (typeof updatedSymbol.active === 'boolean') {
+	    symbols[index].active = updatedSymbol.active;
+	  }
+
+	  // Update symbol jika properti newSymbol ada dan beda dari sebelumnya
+	  if (updatedSymbol.newSymbol && updatedSymbol.newSymbol !== updatedSymbol.symbol) {
+	    // Cek duplikasi
+	    if (symbols.find(s => s.symbol === updatedSymbol.newSymbol)) {
+	      return { success: false, message: 'Symbol sudah ada' };
+	    }
+	    symbols[index].symbol = updatedSymbol.newSymbol;
+	  }
+
+	  // Simpan ke JSON dan sort alphabet berdasarkan symbol
+	  // symbols.sort((a, b) => a.symbol.localeCompare(b.symbol));
+
+	  try {
+	    fs.writeFileSync(symbolsFile, JSON.stringify(symbols, null, 2));
+	    console.log(`Berhasil update symbol: ${updatedSymbol.symbol}`);
+	    return { message:`Berhasil update symbol: ${updatedSymbol.symbol}`, success: true, data: symbols };
+	  } catch (err) {
+	    console.warn('Failed to save symbols.json', err);
+	    return { success: false, message: 'Failed to save file', error: err };
+	  }
 	});
 
 	ipcMain.handle('management:delete', (event, symbol) => {
-		const index = targetSymbols.indexOf(symbol);
-		if (index === -1) {
-			return { success: false, message: 'Symbol not found' };
-		}
-		targetSymbols.splice(index, 1);
-		return { success: true, data: targetSymbols };
+	  // Cari index symbol yang ingin dihapus
+	  const index = symbols.findIndex(s => s.symbol === symbol);
+	  if (index === -1) {
+	    return { success: false, message: 'Symbol not found' };
+	  }
+
+	  // Hapus objek symbol
+	  symbols.splice(index, 1);
+
+	  // Simpan kembali ke file JSON
+	  try {
+	    fs.writeFileSync(symbolsFile, JSON.stringify(symbols, null, 2));
+	    console.log(`Berhasil menghapus symbol: ${symbol}`);
+	    return { message:`Berhasil menghapus symbol: ${symbol}`, success: true, data: symbols };
+	  } catch (err) {
+	    console.warn('Failed to save symbols.json', err);
+	    return { success: false, message: 'Gagal menghapus symbol', error: err };
+	  }
 	});
 }
 

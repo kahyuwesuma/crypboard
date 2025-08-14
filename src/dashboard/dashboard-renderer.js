@@ -1,16 +1,16 @@
 document.getElementById('management-button').addEventListener('click', () => {
   window.dashboardAPI.navigate('manajemen');
 });
-
-
+const { formatPrice } = window.utils;
 
 let currentUsdtIdrRate = 15800; // Default value
 window.indodaxAPI.onHeaderData((data) => {
+  console.log(data)
   const { btcIdr, btcUsdt, usdtIdr } = data;
   currentUsdtIdrRate = usdtIdr;
-  document.getElementById("btcIdr").innerText = btcIdr?.toLocaleString("id-ID") || "-";
-  document.getElementById("btcUsdt").innerText = btcUsdt?.toFixed(2) || "-";
-  document.getElementById("usdtIdr").innerText = usdtIdr?.toLocaleString("id-ID") || "-";
+  document.getElementById("btcIdr").innerText = formatPrice(btcIdr, "IDR") || "-";
+  document.getElementById("btcUsdt").innerText = formatPrice(btcUsdt, "USD") || "-";
+  document.getElementById("usdtIdr").innerText = formatPrice(usdtIdr,"IDR")|| "-";
 });
 
 function debounce(fn, delay) {
@@ -112,7 +112,8 @@ function renderTableImmediate(exchange) {
 
   const finalData = searchValue
     ? [...favorites, ...nonFavorites]
-    : [...favorites.slice(0, 10), ...nonFavorites.slice(0, 20 - favorites.length)];
+    : [...favorites, ...nonFavorites];
+
 
   finalData.forEach(({ symbol, priceA, priceB, gap }) => {
     const isFavorite = favSet.has(symbol);
@@ -277,7 +278,7 @@ document.getElementById("currencySwitchBtn").addEventListener("click", () => {
 });
 
 
-const { formatPrice } = window.utils;
+
 function renderCombinedOrderbook(symbol, exchange, gap) {
   const indodaxOrders = latestOrders.indodax || [];
   const otherOrders = latestOrders[exchange] || [];

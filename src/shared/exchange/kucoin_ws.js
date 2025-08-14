@@ -4,6 +4,8 @@ const https = require('https');
 
 const lastPrices = {};
 let currentKucoinOrderbookWS = null; // koneksi orderbook aktif
+let currentKucoinWS = null; // koneksi orderbook aktif
+let shouldReconnectKucoin = true; // default: auto reconnect
 
 async function getKucoinWSInfo() {
   try {
@@ -21,78 +23,106 @@ async function getKucoinWSInfo() {
   }
 }
 
-function startKucoinWS(targetSymbols, callback) {
-  getKucoinWSInfo().then((info) => {
-    if (!info) return;
+function startKucoinWS(targetSymbols, callback, batchSize = 50) {
+  shouldReconnectKucoin = true;
 
-    const { token, endpoint } = info;
-    const wsUrl = `${endpoint}?token=${token}`;
+  // Bagi list symbol menjadi batch
+  const batches = [];
+  for (let i = 0; i < targetSymbols.length; i += batchSize) {
+    batches.push(targetSymbols.slice(i, i + batchSize));
+  }
 
-    function startConnection() {
-      const ws = new WebSocket(wsUrl);
+  // Jalankan 1 koneksi WS per batch
+  batches.forEach((batchSymbols, batchIndex) => {
+    connectKucoinBatch(batchSymbols, batchIndex + 1, callback);
+  });
+}
 
-      ws.on('open', () => {
-        targetSymbols.forEach((symbol) => {
-          let base = symbol.slice(0, -4);
-          let quote = symbol.slice(-4);
-          const symbolWithDash = `${base}-${quote}`.toUpperCase();
+async function connectKucoinBatch(batchSymbols, batchNumber, callback) {
+  const info = await getKucoinWSInfo();
+  if (!info) return;
 
-          const subMsg = {
-            id: Date.now(),
-            type: "subscribe",
-            topic: `/market/ticker:${symbolWithDash}`,
-            privateChannel: false,
-            response: true,
-          };
+  const { token, endpoint } = info;
+  const wsUrl = `${endpoint}?token=${token}`;
 
-          ws.send(JSON.stringify(subMsg));
-          console.log(`[KuCoin] Subscribed to ${symbolWithDash}`);
-        });
+  let pingInterval = null;
+
+  function startConnection() {
+    const ws = new WebSocket(wsUrl);
+
+    ws.on('open', () => {
+      console.log(`[KuCoin Batch ${batchNumber}] Connected, subscribing...`);
+
+      batchSymbols.forEach((symbol) => {
+        const base = symbol.slice(0, -4);
+        const quote = symbol.slice(-4);
+        const symbolWithDash = `${base}-${quote}`.toUpperCase();
+
+        const subMsg = {
+          id: Date.now(),
+          type: "subscribe",
+          topic: `/market/ticker:${symbolWithDash}`,
+          privateChannel: false,
+          response: true,
+        };
+
+        ws.send(JSON.stringify(subMsg));
+        console.log(`[KuCoin Batch ${batchNumber}] Subscribed to ${symbolWithDash}`);
       });
 
-      ws.on('message', (msg) => {
-        try {
-          const data = JSON.parse(msg);
+      // Ping interval setiap 20 detik
+      pingInterval = setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ id: Date.now(), type: "ping" }));
+        }
+      }, 20000);
+    });
 
-          if (data.type === 'message' && data.data) {
-            const topic = data.topic || "";
-            const ticker = data.data;
-            const price = parseFloat(ticker.price || 0);
-            if (!topic.startsWith("/market/ticker:") || !price) return;
+    ws.on('message', (msg) => {
+      try {
+        const data = JSON.parse(msg);
 
-            const rawSymbol = topic.split(":")[1].toUpperCase();
-            const symbol = rawSymbol.replace("-", "");
+        if (data.type === 'message' && data.data) {
+          const topic = data.topic || "";
+          const ticker = data.data;
+          const price = parseFloat(ticker.price || 0);
+          if (!topic.startsWith("/market/ticker:") || !price) return;
 
-            if (lastPrices[symbol] !== price) {
-              lastPrices[symbol] = price;
-              callback({
-                exchange: "kucoin",
-                data: [{ symbol, price }]
-              });
-            }
+          const rawSymbol = topic.split(":")[1].toUpperCase();
+          const symbol = rawSymbol.replace("-", "");
 
-          } else if (data.type === "ping") {
-            ws.send(JSON.stringify({ type: "pong" }));
+          if (lastPrices[symbol] !== price) {
+            lastPrices[symbol] = price;
+            callback({
+              exchange: "kucoin",
+              data: [{ symbol, price }]
+            });
           }
 
-        } catch (err) {
-          console.error("[KuCoin] Error parsing message:", err);
+        } else if (data.type === "pong") {
+          // Pong response, biarkan saja
         }
-      });
 
-      ws.on('error', (err) => {
-        console.error("[KuCoin] WebSocket error:", err);
-      });
+      } catch (err) {
+        console.error(`[KuCoin Batch ${batchNumber}] Error parsing message:`, err);
+      }
+    });
 
-      ws.on('close', (code, reason) => {
-        console.warn(`[KuCoin] Disconnected (${code}): ${reason}`);
-        console.log("[KuCoin] Reconnecting in 5s...");
-        setTimeout(startConnection, 5000); // reconnect
-      });
-    }
+    ws.on('error', (err) => {
+      console.error(`[KuCoin Batch ${batchNumber}] WebSocket error:`, err.message);
+    });
 
-    startConnection();
-  });
+    ws.on('close', (code, reason) => {
+      console.warn(`[KuCoin Batch ${batchNumber}] Disconnected (${code}): ${reason}`);
+      clearInterval(pingInterval);
+      if (shouldReconnectKucoin) {
+        console.log(`[KuCoin Batch ${batchNumber}] Reconnecting in 5s...`);
+        setTimeout(startConnection, 5000);
+      }
+    });
+  }
+
+  startConnection();
 }
 
 /**
@@ -101,6 +131,8 @@ function startKucoinWS(targetSymbols, callback) {
  * @param {function} callback - menerima array {price, qty, type}
  */
 function getKucoinOrderbook(symbol, callback) {
+  shouldReconnectKucoin = true;
+
   if (currentKucoinOrderbookWS) {
     currentKucoinOrderbookWS.close();
     currentKucoinOrderbookWS = null;
@@ -215,6 +247,14 @@ function getKucoinOrderbook(symbol, callback) {
   });
 }
 
+function closeKucoinWS() {
+  shouldReconnectKucoin = false;
+  if (currentKucoinWS) {
+    currentKucoinWS.close();
+    currentKucoinWS = null;
+    console.log("[KuCoin] Ticker WS closed manually");
+  }
+}
 
 /**
  * Menutup koneksi orderbook KuCoin
@@ -228,6 +268,7 @@ function closeKucoinOrderbookWS() {
 
 module.exports = {
   startKucoinWS,
+  closeKucoinWS,
   getKucoinOrderbook,
   closeKucoinOrderbookWS
 };

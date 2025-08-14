@@ -4,6 +4,10 @@ const axios = require('axios');
 // Simpan harga terakhir untuk deteksi perubahan
 const lastPrices = {};
 
+// --- Tambahan global variable ---
+let shouldReconnectGateio = true;
+let currentGateioWSConnections = []; // simpan semua batch connection
+
 // Simpan koneksi orderbook aktif
 let currentGateioOrderbookWS = null;
 
@@ -25,6 +29,8 @@ async function fetchValidPairs(quote = "USDT") {
 }
 
 function startGateioWS(targetSymbols, callback) {
+  shouldReconnectGateio = true; // nyalakan reconnect tiap kali start
+
   const BATCH_SIZE = 20;
 
   fetchValidPairs().then((validSymbols) => {
@@ -43,7 +49,10 @@ function startGateioWS(targetSymbols, callback) {
 }
 
 function startBatch(pairsBatch, callback) {
+  if (!shouldReconnectGateio) return; // jangan connect kalau sudah stop
+
   const ws = new WebSocket("wss://api.gateio.ws/ws/v4/");
+  currentGateioWSConnections.push(ws); // simpan koneksi
 
   ws.on('open', () => {
     const payloadPairs = pairsBatch.map(s => s.replace("USDT", "_USDT"));
@@ -89,7 +98,21 @@ function startBatch(pairsBatch, callback) {
 
   ws.on('close', () => {
     console.warn("[Gate.io] WebSocket closed");
+    if (shouldReconnectGateio) {
+      console.log("[Gate.io] Reconnecting in 5s...");
+      setTimeout(() => startBatch(pairsBatch, callback), 5000);
+    }
   });
+}
+function stopGateioWS() {
+  shouldReconnectGateio = false; // matikan reconnect
+  currentGateioWSConnections.forEach(conn => {
+    try {
+      conn.close();
+    } catch (e) {}
+  });
+  currentGateioWSConnections = [];
+  console.log("[Gate.io] All ticker WS connections closed manually");
 }
 
 /**
@@ -165,6 +188,7 @@ function closeGateioOrderbookWS() {
 
 module.exports = {
   startGateioWS,
+  stopGateioWS,
   getGateioOrderbook,
   closeGateioOrderbookWS
 };

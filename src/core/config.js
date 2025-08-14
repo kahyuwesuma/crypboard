@@ -1,44 +1,52 @@
-const { startHuobiWS, getHuobiOrderbook, closeHuobiOrderbookWS } = require('../shared/exchange/houbi_ws');
-const { startGateioWS, getGateioOrderbook, closeGateioOrderbookWS } = require('../shared/exchange/gateio_ws');
-const { startKucoinWS, getKucoinOrderbook, closeKucoinOrderbookWS } = require('../shared/exchange/kucoin_ws');
-const { startMexcWS, getMexcOrderbook, closeMexcOrderbookWS } = require('../shared/exchange/mexc_ws');
-const { startOkxWS, getOkxOrderbook, closeOkxOrderbookWS } = require('../shared/exchange/okx_ws');
-const { startBitgetWS, getBitgetOrderbook, closeBitgetOrderbookWS } = require('../shared/exchange/bitget_ws');
-const { startBybitWS, getBybitOrderbook, closeBybitOrderbookWS } = require('../shared/exchange/bybit_ws');
-const { startBinanceWS, getBinanceOrderbook, closeBinanceOrderbookWS } = require('../shared/exchange/binance_ws');
+const { startHuobiWS, stopHuobiWS ,getHuobiOrderbook, closeHuobiOrderbookWS } = require('../shared/exchange/houbi_ws');
+const { startGateioWS, stopGateioWS ,getGateioOrderbook, closeGateioOrderbookWS } = require('../shared/exchange/gateio_ws');
+const { startKucoinWS, closeKucoinWS, getKucoinOrderbook, closeKucoinOrderbookWS } = require('../shared/exchange/kucoin_ws');
+const { startMexcWS, stopMexcWS, getMexcOrderbook, closeMexcOrderbookWS } = require('../shared/exchange/mexc_ws');
+const { startOkxWS, stopOkxWS, getOkxOrderbook, closeOkxOrderbookWS } = require('../shared/exchange/okx_ws');
+const { startBitgetWS, stopBitgetWS ,getBitgetOrderbook, closeBitgetOrderbookWS } = require('../shared/exchange/bitget_ws');
+const { startBybitWS, stopBybitWS, getBybitOrderbook, closeBybitOrderbookWS } = require('../shared/exchange/bybit_ws');
+const { startBinanceWS, stopBinanceWS ,getBinanceOrderbook, closeBinanceOrderbookWS } = require('../shared/exchange/binance_ws');
 
 const priceConfigs = [
 	{
 		name: 'binance',
-		startFunction: startBinanceWS
+		startFunction: startBinanceWS,
+		stopFunction: stopBinanceWS
 	},
 	{
 		name: 'huobi',
-		startFunction: startHuobiWS
+		startFunction: startHuobiWS,
+		stopFunction: stopHuobiWS
 	},
 	{
 		name: 'gateio',
-		startFunction: startGateioWS
+		startFunction: startGateioWS,
+		stopFunction: stopGateioWS
 	},
 	{
 		name: 'kucoin',
-		startFunction: startKucoinWS
+		startFunction: startKucoinWS,
+		stopFunction: closeKucoinWS
 	},
 	{
 		name: 'mexc',
-		startFunction: startMexcWS
+		startFunction: startMexcWS,
+		stopFunction: stopMexcWS
 	},
 	{
 		name: 'okx',
-		startFunction: startOkxWS
+		startFunction: startOkxWS,
+		stopFunction: stopOkxWS
 	},
 	{
 		name: 'bitget',
-		startFunction: startBitgetWS
+		startFunction: startBitgetWS,
+		stopFunction: stopBitgetWS
 	},
 	{
 		name: 'bybit',
-		startFunction: startBybitWS
+		startFunction: startBybitWS,
+		stopFunction: stopBybitWS
 	}
 ];
 

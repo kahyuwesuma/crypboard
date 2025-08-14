@@ -1,8 +1,13 @@
 const WebSocket = require('ws');
 
+let shouldReconnectBinance = true;
+let currentBinanceWS = null;
+
 function startBinanceWS(symbols, callback) {
+  shouldReconnectBinance = true;
   const ws = new WebSocket("wss://stream.binance.com:9443/stream?streams=!ticker@arr");
   const lastPrices = {};
+  let lastBtcPrice = 0;
 
   ws.on("message", (raw) => {
     const msg = JSON.parse(raw);
@@ -20,6 +25,13 @@ function startBinanceWS(symbols, callback) {
           updates.push({ symbol, price });
         }
       }
+      if (symbol === "BTCUSDT") {
+        const btcPrice = parseFloat(price);
+        if (lastBtcPrice !== btcPrice) {
+          lastBtcPrice = btcPrice;
+          updates.push({ type: "header", symbol: "BTCUSDT", price: btcPrice })
+        }
+      }
     }
 
     if (updates.length) {
@@ -32,10 +44,28 @@ function startBinanceWS(symbols, callback) {
   });
 
   ws.on("close", () => {
-    console.warn("[Binance WS] Closed, reconnecting in 5s...");
-    setTimeout(() => startBinanceWS(symbols, callback), 5000);
+    // console.warn("[Binance WS] Closed, reconnecting in 5s...");
+    if (shouldReconnectBinance) {
+      console.warn("[Binance WS] Reconnecting in 5s...");
+      setTimeout(() => startBinanceWS(symbols, callback), 5000);
+    }
   });
 }
+
+function stopBinanceWS() {
+  shouldReconnectBinance = false;
+  if (currentBinanceWS) {
+    try {
+      currentBinanceWS.close();
+      console.log("[Binance WS] Connection closed manually");
+    } catch (e) {
+      console.error("[Binance WS] Error closing connection:", e);
+    }
+    currentBinanceWS = null;
+  }
+}
+
+
 let currentBinanceOrderbookWS = null;
 function getBinanceOrderbook(symbol, callback) {
   
@@ -85,4 +115,4 @@ function closeBinanceOrderbookWS() {
   }
 }
 
-module.exports = { startBinanceWS, getBinanceOrderbook, closeBinanceOrderbookWS};
+module.exports = { startBinanceWS, stopBinanceWS, getBinanceOrderbook, closeBinanceOrderbookWS};

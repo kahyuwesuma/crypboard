@@ -357,6 +357,7 @@ td.flash-red{
     color: #ffffff;
     margin: 0;
 }
+.closeOrderbookModal,
 #currencySwitchBtn,
 #closeOrderbookModal {
     background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
@@ -369,6 +370,7 @@ td.flash-red{
     cursor: pointer;
     transition: all 0.2s ease;
 }
+.closeOrderbookModal:hover,
 #currencySwitchBtn:hover,
 #closeOrderbookModal:hover {
     transform: translateY(-1px);

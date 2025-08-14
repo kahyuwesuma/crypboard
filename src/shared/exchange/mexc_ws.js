@@ -57,73 +57,82 @@ function loadProtobufDefinitions() {
     }
   });
 }
+let currentMexcTickerWS = null;
+let currentMexcTickerFlushInterval = null;
+let currentMexcTickerPingInterval = null;
+const MAX_SUBS_PER_WS = 30;
+let mexcWSConnections = [];
 
-function startMexcWS(targetSymbols, callback) {
+function chunkArray(array, size) {
+  const result = [];
+  for (let i = 0; i < array.length; i += size) {
+    result.push(array.slice(i, i + size));
+  }
+  return result;
+}
+
+function startMexcWS(allSymbols, callback) {
+  const symbolBatches = chunkArray(allSymbols, MAX_SUBS_PER_WS);
+
+  symbolBatches.forEach((batchSymbols, batchIndex) => {
+    startMexcWSBatch(batchSymbols, callback, batchIndex + 1);
+  });
+}
+function startMexcWSBatch(targetSymbols, callback, batchNumber) {
   loadProtobufDefinitions()
     .then((protoLoaded) => {
-      if (!protoLoaded) {
-        throw new Error('Failed to load protobuf definitions.');
-      }
+      if (!protoLoaded) throw new Error('Failed to load protobuf definitions.');
 
       const latestPrices = {};
       const updatedPrices = [];
       let ws = null;
 
-      // Flush every 500ms
       const flushInterval = setInterval(() => {
-        // console.log(updatedPrices )
         if (updatedPrices.length > 0) {
           callback({
-            exchange: 'MEXC',
+            exchange: `MEXC-${batchNumber}`, // identifikasi batch
             data: [...updatedPrices],
           });
           updatedPrices.length = 0;
         }
       }, 10);
 
-      // Ping every 30s
       const pingInterval = setInterval(() => {
         if (ws && ws.readyState === WebSocket.OPEN) {
           ws.send(JSON.stringify({ method: 'PING' }));
         }
       }, 30000);
+      currentMexcTickerFlushInterval = flushInterval;
+      currentMexcTickerPingInterval = pingInterval;
 
       function parseProtobufMessage(buffer) {
         try {
           const wrapper = PushDataV3ApiWrapper.decode(buffer);
-
           if (wrapper.publicAggreDeals && wrapper.publicAggreDeals.deals) {
-            const dealsData = wrapper.publicAggreDeals;
-            if (dealsData.deals.length > 0) {
-              const latestDeal = dealsData.deals[0];
+            const latestDeal = wrapper.publicAggreDeals.deals[0];
+            if (latestDeal) {
               const price = latestDeal.price;
               const symbol = wrapper.symbol;
-
               if (price && latestPrices[symbol] !== price) {
                 latestPrices[symbol] = price;
                 updatedPrices.push({
                   symbol,
                   price: parseFloat(price),
                 });
-                // console.log(`[MEXC] Price update: ${symbol} = ${price}`);
               }
             }
           }
-          return wrapper;
         } catch (error) {
-          console.error('[MEXC] Error parsing protobuf message:', error.message);
-          console.log('[MEXC] Message bytes (first 20):',
-            Array.from(buffer.slice(0, 20)).map(b => b.toString(16).padStart(2, '0')).join(' ')
-          );
-          return null;
+          console.error(`[MEXC-${batchNumber}] Error parsing protobuf message:`, error.message);
         }
       }
 
       function connect() {
         ws = new WebSocket('wss://wbs-api.mexc.com/ws');
+        mexcWSConnections.push(ws);
 
         ws.on('open', () => {
-          console.log('[MEXC] Connected, subscribing to symbols...');
+          console.log(`[MEXC-${batchNumber}] Connected, subscribing ${targetSymbols.length} symbols...`);
           targetSymbols.forEach((symbol, index) => {
             const channelName = `spot@public.aggre.deals.v3.api.pb@100ms@${symbol}`;
             const sub = {
@@ -134,70 +143,57 @@ function startMexcWS(targetSymbols, callback) {
             setTimeout(() => {
               if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify(sub));
-                console.log(`[MEXC] Subscribing to ${symbol}`);
               }
             }, index * 100);
           });
         });
 
         ws.on('message', (msg) => {
-          try {
-            if (msg[0] === 0x7B) { // JSON
-              const data = JSON.parse(msg.toString());
-
-              if (data.id && data.code !== undefined) {
-                if (data.code === 0) {
-                  console.log(`[MEXC] Successfully subscribed: ${data.msg}`);
-                } else {
-                  console.error('[MEXC] Subscription failed:', data.msg);
-                }
-                return;
-              }
-
-              if (data.msg === 'PONG') {
-                console.log('[MEXC] PONG received');
-                return;
-              }
-            } else {
-              parseProtobufMessage(msg);
-            }
-          } catch (err) {
-            console.error('[MEXC] Error processing message:', err.message);
+          if (msg[0] === 0x7B) {
+            const data = JSON.parse(msg.toString());
+            if (data.msg === 'PONG') return;
+          } else {
+            parseProtobufMessage(msg);
           }
         });
 
-        ws.on('error', (err) => {
-          console.error('[MEXC] WebSocket error:', err.message);
+        ws.on('close', () => {
+          console.log(`[MEXC-${batchNumber}] Disconnected, reconnecting...`);
+          setTimeout(connect, 5000);
         });
 
-        ws.on('close', (code, reason) => {
-          console.log(`[MEXC] Connection closed: ${code} ${reason}`);
-          setTimeout(() => {
-            console.log('[MEXC] Reconnecting...');
-            connect();
-          }, 5000);
+        ws.on('error', (err) => {
+          console.error(`[MEXC-${batchNumber}] Error:`, err.message);
         });
       }
 
       connect();
-
-      return {
-        close: () => {
-          clearInterval(flushInterval);
-          clearInterval(pingInterval);
-          if (ws) {
-            ws.close();
-          }
-        },
-        getConnection: () => ws,
-        getLatestPrices: () => ({ ...latestPrices })
-      };
     })
-    .catch((error) => {
-      console.error('[MEXC] Failed to start WebSocket:', error.message);
-      throw error;
-    });
+    .catch((err) => console.error(`[MEXC-${batchNumber}] Failed:`, err.message));
 }
+
+
+// Fungsi stop tambahan untuk price ticker
+function stopMexcWS() {
+  if (currentMexcTickerFlushInterval) {
+    clearInterval(currentMexcTickerFlushInterval);
+    currentMexcTickerFlushInterval = null;
+  }
+  if (currentMexcTickerPingInterval) {
+    clearInterval(currentMexcTickerPingInterval);
+    currentMexcTickerPingInterval = null;
+  }
+  if (currentMexcTickerWS) {
+    try {
+      currentMexcTickerWS.close();
+      console.log('[MEXC] 🔌 Price ticker WS closed.');
+    } catch (e) {
+      console.error('[MEXC] Error closing ticker WS:', e.message);
+    }
+    currentMexcTickerWS = null;
+  }
+}
+
 
 let currentMexcOrderbookWS = null;
 
@@ -372,4 +368,4 @@ function closeMexcOrderbookWS() {
   }
 }
 
-module.exports = { startMexcWS, getMexcOrderbook, closeMexcOrderbookWS };
+module.exports = { startMexcWS, stopMexcWS, getMexcOrderbook, closeMexcOrderbookWS };

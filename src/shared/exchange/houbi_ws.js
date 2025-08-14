@@ -17,7 +17,10 @@ let lastPrices = {};
 let confirmedSymbols = new Set();
 let currentHuobiOrderbookWS = null; // simpan WS orderbook aktif
 
+let huobiWSConnections = []; // simpan semua koneksi WS ticker
+let huobiShouldReconnect = true;
 function startHuobiWS(symbols, callback){
+  huobiShouldReconnect = true;
   const batches = splitToBatches(symbols, BATCH_SIZE);
   batches.forEach((batch, idx) => {
     connectToHuobi(batch, `batch_${idx}`, callback);
@@ -28,6 +31,7 @@ function connectToHuobi(symbols, batchId, callback , uriIndex = 0, attempt = 0) 
   const uri = HUOBI_ENDPOINTS[uriIndex % HUOBI_ENDPOINTS.length];
   const ws = new WebSocket(uri);
   ws.binaryType = 'arraybuffer';
+  huobiWSConnections.push(ws);
 
   ws.on('open', () => {
     console.log(`[Huobi] ✅ Connected: ${batchId} (${symbols.length} symbols)`);
@@ -75,11 +79,13 @@ function connectToHuobi(symbols, batchId, callback , uriIndex = 0, attempt = 0) 
 
   ws.on('close', () => {
     console.warn(`[Huobi] ⚠️ Connection closed: ${batchId}`);
-    if (attempt < MAX_RETRIES) {
+    if (huobiShouldReconnect && attempt < MAX_RETRIES) {
       const nextUriIndex = (uriIndex + 1) % HUOBI_ENDPOINTS.length;
       setTimeout(() => {
         connectToHuobi(symbols, batchId, callback, nextUriIndex, attempt + 1);
       }, getBackoffDelay(attempt));
+    } else if (!huobiShouldReconnect) {
+      console.log(`[Huobi] 🔌 Manual stop for ${batchId}, not reconnecting.`);
     } else {
       console.error(`[Huobi] ❌ Max retry limit reached for ${batchId}`);
     }
@@ -91,7 +97,18 @@ function connectToHuobi(symbols, batchId, callback , uriIndex = 0, attempt = 0) 
     }
   }, PING_INTERVAL);
 }
-
+function stopHuobiWS() {
+  huobiShouldReconnect = false;
+  huobiWSConnections.forEach((ws) => {
+    try {
+      ws.close();
+    } catch (e) {
+      console.error("[Huobi] Error closing WS:", e);
+    }
+  });
+  huobiWSConnections = [];
+  console.log("[Huobi] 🔌 All ticker WS connections closed.");
+}
 function decompressMessage(data) {
   const buffer = Buffer.from(data);
   return pako.ungzip(buffer, { to: 'string' });
@@ -193,5 +210,6 @@ function startHuobiWSClient(symbols, callback) {
 module.exports = { 
   startHuobiWS: startHuobiWSClient,
   getHuobiOrderbook,
+  stopHuobiWS,
   closeHuobiOrderbookWS
 };

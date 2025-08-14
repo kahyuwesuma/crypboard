@@ -1,6 +1,10 @@
 const WebSocket = require('ws');
 
+let currentOkxTickerWS = null; // simpan koneksi price ticker
+let reconnectOkx=true;
+
 function startOkxWS(targetSymbols = [], callback) {
+  reconnectOkx=true
   const wsUrl = 'wss://ws.okx.com:8443/ws/v5/public';
 
   const dashSymbols = [];
@@ -26,6 +30,7 @@ function startOkxWS(targetSymbols = [], callback) {
 
   function connect() {
     ws = new WebSocket(wsUrl);
+    currentOkxTickerWS = ws; // simpan koneksi ticker
 
     ws.on('open', () => {
       const args = dashSymbols.map((s) => ({
@@ -82,8 +87,12 @@ function startOkxWS(targetSymbols = [], callback) {
     });
 
     ws.on('close', (code, reason) => {
-      console.warn(`[OKX] Connection closed: ${code} - ${reason}. Reconnecting in 5s...`);
-      setTimeout(connect, 5000);
+      if(reconnectOkx){
+        console.warn(`[OKX] Connection closed: ${code} - ${reason}. Reconnecting in 5s...`);
+        setTimeout(connect, 5000);
+      }
+      console.log("[OKX] Manually Closed Connection")
+
     });
   }
 
@@ -187,6 +196,19 @@ function closeOkxOrderbookWS() {
     currentOkxOrderbookWS = null;
   }
 }
+
+function stopOkxWS() {
+  reconnectOkx=false;
+  if (currentOkxTickerWS) {
+    try {
+      currentOkxTickerWS.close();
+      console.log('[OKX] 🔌 Price ticker WS closed.');
+    } catch (e) {
+      console.error('[OKX] Error closing ticker WS:', e.message);
+    }
+    currentOkxTickerWS = null;
+  }
+}
 module.exports = {
-  startOkxWS, getOkxOrderbook, closeOkxOrderbookWS
+  startOkxWS, stopOkxWS, getOkxOrderbook, closeOkxOrderbookWS
 };

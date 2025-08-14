@@ -1,13 +1,24 @@
 const path = require('path')
 const { ipcMain, BrowserWindow } = require('electron')
-const { orderbookConfigs, priceConfigs, targetSymbols } = require('../core/config')
+const { orderbookConfigs, priceConfigs } = require('../core/config')
+const { displaySymbols } = require('../shared/utils/helper')
 const { startIndodaxPolling, startIndodaxOrderbookPolling } = require('../shared/exchange/indodax_poll')
+
+function getTargetSymbols() {
+	const targetSymbols = displaySymbols();
+  	return targetSymbols; // selalu baca ulang dari file
+}
 
 let win
 let usdtIdrPrice = 0
 let isUpdating = false // Flag untuk mencegah multiple updates
 let pendingUpdates = new Set() // Track exchange yang perlu di-update
-
+let lastSavedPrices = null; // untuk menyimpan harga terakhir sebelum window di-close
+let headerPrices = {
+  btcIdr: 0,
+  btcUsdt: 0,
+  usdtIdr: 0
+};
 const sharedPrices = {
 	indodax: {},
 	binance: {},
@@ -33,24 +44,71 @@ const debouncedBatchUpdate = (() => {
 })()
 
 function initializeDashboard(mainWindow) {
-	for (let ex in sharedPrices) {
-	    sharedPrices[ex] = {};
-	}
+	// // Reset semua sharedPrices terlebih dahulu
+	// for (let ex in sharedPrices) {
+	//     sharedPrices[ex] = {};
+	// }
+	
 	win = mainWindow
+	
+	// Dapatkan symbol yang aktif saat ini
+	const currentActiveSymbols = getTargetSymbols();
+	
+	// Restore harga terakhir jika ada, tapi HANYA untuk symbol yang aktif
+	if (lastSavedPrices) {
+	    for (let ex in sharedPrices) {
+	        sharedPrices[ex] = {};
+	        for (let sym of currentActiveSymbols) { // Gunakan currentActiveSymbols, bukan getTargetSymbols()
+	        	console.log(`Restoring ${ex} - ${sym}`);
+	            if (lastSavedPrices[ex] && lastSavedPrices[ex][sym] !== undefined) {
+	                sharedPrices[ex][sym] = lastSavedPrices[ex][sym];
+	            }
+	        }
+	    }
 
-  // Start polling Indodax
-	startIndodaxPolling(targetSymbols, (data, usdtIdr) => {
+	    // Langsung kirim harga awal ke renderer untuk setiap exchange
+	    priceConfigs.forEach(({ name }) => {
+	        if (name !== 'indodax') {
+	            updateComparison(name);
+	        }
+	    });
+
+	    // Kirim header data jika BTCUSDT dan USDT/IDR tersedia
+	    const btcIdr = sharedPrices.indodax["BTCUSDT"];
+	    const btcUsdt = sharedPrices.binance["BTCUSDT"];
+	    if (btcIdr && btcUsdt && usdtIdrPrice > 0) {
+	        win.webContents.send("header-data", {
+	            btcIdr,
+	            btcUsdt,
+	            usdtIdr: usdtIdrPrice
+	        });
+	    }
+	}
+	
+	// Start polling Indodax dengan symbol yang aktif saat ini
+	startIndodaxPolling(currentActiveSymbols, (data, usdtIdr) => {
 		const oldUsdtIdrPrice = usdtIdrPrice
+		// const type = item.type || null;
 		usdtIdrPrice = usdtIdr
 
-		data.forEach(({ symbol, price }) => {
-			sharedPrices.indodax[symbol] = parseFloat(price)
+		data.forEach((item) => {
+			const symbol = item.symbol || item.s; // tergantung naming WS
+			const price = parseFloat(item.price || item.c);
+			const type = item.type || null;
+			// Hanya simpan jika symbol masih aktif
+			if (currentActiveSymbols.includes(symbol)) {
+				sharedPrices.indodax[symbol] = parseFloat(price)
+			}
+		    // Simpan khusus BTCUSDT ke headerPrices
+		    if (type === "header") {
+		      headerPrices.btcIdr = parseFloat(price)
+		    }
 		})
 
-		const btcIdr = sharedPrices.indodax["BTCUSDT"]
-		const btcUsdt = sharedPrices.binance["BTCUSDT"]
+		const btcIdr = headerPrices.btcIdr
+		const btcUsdt = headerPrices.btcUsdt
 
-		if (win && btcIdr && btcUsdt && usdtIdr) {
+		if (win) {
 			win.webContents.send("header-data", {
 				btcIdr,
 				btcUsdt,
@@ -69,14 +127,34 @@ function initializeDashboard(mainWindow) {
 	for (const exchange of priceConfigs) {
 		const { name, startFunction } = exchange
 
-		startFunction(targetSymbols, (data) => {
+		startFunction(currentActiveSymbols, (data) => {
 			if (Array.isArray(data)) {
-				data.forEach(({ symbol, price }) => {
-					sharedPrices[name][symbol] = parseFloat(price)
+				data.forEach(item => {
+					const symbol = item.symbol || item.s; // tergantung naming WS
+					const price = parseFloat(item.price || item.c);
+					const type = item.type || null; // <-- default null jika tidak ada
+					if (type === "header") {
+						// Update header BTCUSDT
+						headerPrices.btcUsdt = parseFloat(price);
+					}
+					// Hanya simpan jika symbol masih aktif
+					if (currentActiveSymbols.includes(symbol)) {
+						sharedPrices[name][symbol] = parseFloat(price)
+					}
 				})
 			} else if (data.data) {
-				data.data.forEach(({ symbol, price }) => {
-					sharedPrices[name][symbol] = parseFloat(price)
+				data.data.forEach(item => {
+				  	const symbol = item.symbol || item.s; // tergantung naming WS
+				    const price = parseFloat(item.price || item.c);
+				    const type = item.type || null; // <-- default null jika tidak ada
+					if (type === "header") {
+						// Update header BTCUSDT
+						headerPrices.btcUsdt = parseFloat(price);
+					}
+					// Hanya simpan jika symbol masih aktif
+					if (currentActiveSymbols.includes(symbol)) {
+						sharedPrices[name][symbol] = parseFloat(price)
+					}
 				})
 			}
 
@@ -115,10 +193,12 @@ function updateComparison(exchangeName) {
 	const merged = []
 	const indodaxPrices = sharedPrices.indodax
 	const otherPrices = sharedPrices[exchangeName]
+	const currentActiveSymbols = getTargetSymbols(); // Baca ulang symbol aktif
 
 	if (!otherPrices || Object.keys(otherPrices).length === 0) return
 
-  	for (const symbol of Object.keys(indodaxPrices)) {
+  	// Hanya proses symbol yang aktif
+  	for (const symbol of currentActiveSymbols) {
   		const priceA = indodaxPrices[symbol]
   		const priceB = otherPrices[symbol]
 
@@ -240,13 +320,63 @@ function createDashboardWindow() {
 		},
 	})
     win.on('closed', () => {
-	    win = null;
-	    pendingUpdates.clear();
-	    isUpdating = false;
-    });
+    	// Hanya simpan data untuk symbol yang aktif saat ini
+    	const currentActiveSymbols = getTargetSymbols();
+    	const filteredPrices = {};
+    	
+    	for (let ex in sharedPrices) {
+    		filteredPrices[ex] = {};
+    		for (let sym of currentActiveSymbols) {
+    			if (sharedPrices[ex][sym] !== undefined) {
+    				filteredPrices[ex][sym] = sharedPrices[ex][sym];
+    			}
+    		}
+    	}
+    	
+    	lastSavedPrices = filteredPrices;
+
+		// Pastikan semua koneksi WS dari priceConfigs ditutup
+		priceConfigs.forEach(({ stopFunction }) => {
+			if (typeof stopFunction === 'function') {
+				try {
+					stopFunction()
+				} catch (err) {
+					console.error(`[stopFunction error]`, err)
+				}
+			}
+		})
+
+		// Tutup semua orderbook WS yang aktif
+		Object.values(activeExchangeHandlers).forEach(handler => {
+			if (typeof handler.stop === 'function') {
+				try {
+					handler.stop()
+				} catch (err) {
+					console.error(`[orderbook stop error]`, err)
+				}
+			}
+		})
+
+		// Tutup polling Indodax orderbook
+		Object.values(activeIndodaxPollers).forEach(poller => {
+			if (typeof poller.stop === 'function') {
+				try {
+					poller.stop()
+				} catch (err) {
+					console.error(`[indodax poll stop error]`, err)
+				}
+			}
+		})
+
+		// Bersihkan state
+		win = null
+		pendingUpdates.clear()
+		isUpdating = false
+	})
 	win.loadFile('src/dashboard/dashboard-page.html')
 	return win
 }
+
 module.exports = {
 	initializeDashboard,
 	createDashboardWindow

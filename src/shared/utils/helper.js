@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 function formatPrice(value, currency) {
   if (value == null) return "-";
   const options = {
@@ -11,4 +14,24 @@ function formatPrice(value, currency) {
   }
 }
 
-module.exports={ formatPrice };
+function displaySymbols(){
+  const filePath = path.join(__dirname, '../../storage/symbols.json'); // dari src/shared/utils -> src/storage
+  const rawData = fs.readFileSync(filePath, 'utf8');
+  const coins = JSON.parse(rawData);
+
+  // Filter hanya yang active = true, lalu ambil symbol
+  const activeSymbols = coins
+    .filter(coin => coin.active)
+    .map(coin => coin.symbol);
+  return activeSymbols;
+}
+
+function allSymbols(){
+  const filePath = path.join(__dirname, '../../storage/symbols.json'); // dari src/shared/utils -> src/storage
+  const rawData = fs.readFileSync(filePath, 'utf8');
+  const coins = JSON.parse(rawData);
+
+  return coins;
+}
+
+module.exports={ formatPrice, displaySymbols, allSymbols };

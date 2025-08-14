@@ -8,8 +8,9 @@ const MAX_RECONNECT_ATTEMPTS = 5;
 const INITIAL_RECONNECT_DELAY = 10000; // ms
 const PING_INTERVAL = 30000; // ms
 const HEALTH_CHECK_INTERVAL = 120000; // ms
-
+let shouldReconnectBitget = true;
 function startBitgetWS(targetSymbols = [], callback) {
+  shouldReconnectBitget = true;
   const lastPrices = {};
   const activeConnections = {};
   const reconnectAttempts = {};
@@ -54,6 +55,7 @@ function runWS(symbolBatch, batchId = null, attempt = 0) {
   function cleanup() {
     clearInterval(pingInterval);
     clearTimeout(pongTimeout);
+    console.log("[Bitget] Closed Manually")
     clearReconnectTimer(batchId);
     if (activeConnections[batchId] === ws) delete activeConnections[batchId];
   }
@@ -75,17 +77,17 @@ function runWS(symbolBatch, batchId = null, attempt = 0) {
     }));
     console.log(`[Bitget] Subscribed ${batchId} to ${symbolBatch.length} symbols`);
 
-    // Ping setiap 30 detik + cek pong
-    pingInterval = setInterval(() => {
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ op: 'ping' }));
-        clearTimeout(pongTimeout);
-        pongTimeout = setTimeout(() => {
-          console.warn(`[Bitget] No pong from ${batchId}, reconnecting...`);
-          ws.close();
-        }, 20000); // 20s tanpa pong dianggap mati
-      }
-    }, 30000);
+    // // Ping setiap 30 detik + cek pong
+    // pingInterval = setInterval(() => {
+    //   if (ws.readyState === WebSocket.OPEN) {
+    //     ws.send(JSON.stringify({ op: 'ping' }));
+    //     clearTimeout(pongTimeout);
+    //     pongTimeout = setTimeout(() => {
+    //       console.warn(`[Bitget] No pong from ${batchId}, reconnecting...`);
+    //       ws.close();
+    //     }, 20000); // 20s tanpa pong dianggap mati
+    //   }
+    // }, 30000);
   });
 
   ws.on('message', (msg) => {
@@ -120,7 +122,9 @@ function runWS(symbolBatch, batchId = null, attempt = 0) {
     closedOrErrored = true;
     console.warn(`[Bitget] Connection closed for ${batchId}: ${code} ${reason || 'No reason'}`);
     cleanup();
-    tryReconnect();
+    if (shouldReconnectBitget) {
+      tryReconnect();
+    }
   });
 
   ws.on('error', (err) => {
@@ -128,10 +132,16 @@ function runWS(symbolBatch, batchId = null, attempt = 0) {
     closedOrErrored = true;
     console.error(`[Bitget] Error in ${batchId}:`, err.message);
     cleanup();
-    tryReconnect();
+    if (shouldReconnectBitget) {
+      tryReconnect();
+    }
   });
 
   async function tryReconnect() {
+    if (!shouldReconnectBitget) {
+      console.log(`[Bitget] Autoreconnect disabled, not reconnecting ${batchId}`);
+      return;
+    }
     if (isReconnecting[batchId]) {
       console.log(`[Bitget] ${batchId} already reconnecting, skipping`);
       return;
@@ -241,6 +251,32 @@ function runWS(symbolBatch, batchId = null, attempt = 0) {
     })
   };
 }
+// --- Tambahan flag & fungsi stop untuk Bitget ticker WS ---
+
+
+function stopBitgetWS() {
+  shouldReconnectBitget = false;
+
+  // Tutup semua koneksi aktif
+  if (typeof activeConnections !== 'undefined') {
+    Object.values(activeConnections).forEach(ws => {
+      try {
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.close(1000, 'Manual close');
+        }
+      } catch (e) {}
+    });
+  }
+
+  // Bersihkan semua timer reconnect
+  if (typeof reconnectTimers !== 'undefined') {
+    Object.values(reconnectTimers).forEach(timer => clearTimeout(timer));
+  }
+
+  console.log('[Bitget] All ticker WS connections closed manually');
+}
+
+
 let currentBitgetOrderbookWS = null;
 let reconnectOrderbookTimer = null;
 let currentOrderbookSymbol = null;
@@ -353,4 +389,4 @@ function closeBitgetOrderbookWS() {
   currentOrderbookOnUpdate = null;
   console.log('[Bitget] Orderbook connection closed manually');
 }
-module.exports = { startBitgetWS, getBitgetOrderbook, closeBitgetOrderbookWS };
+module.exports = { startBitgetWS, stopBitgetWS,getBitgetOrderbook, closeBitgetOrderbookWS };

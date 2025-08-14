@@ -9,10 +9,19 @@ function startIndodaxPolling(symbols, callback) {
       const allRes = await axios.get("https://indodax.com/api/ticker_all");
 
       const usdtIdr = parseFloat(kursRes.data.ticker.last);
+      // console.log(usdtIdr)
       const tickers = allRes.data.tickers;
 
       const updates = [];
+      // Pastikan BTC/IDR selalu dikirim
+      if (tickers["btc_idr"]) {
+        const btcIdr = parseFloat(tickers["btc_idr"].last);
+        // console.log(btcIdr)
+        updates.push({ type: "header", symbol: "BTCUSDT", price: btcIdr }); // kirim sebagai BTCUSDT agar konsisten
+      }
 
+      // Pastikan USDT/IDR selalu dikirim sebagai reference
+      updates.push({ symbol: "USDTIDR", price: usdtIdr });
       for (const sym of symbols) {
         const iddx = mapSymbolToIndodax(sym);
         if (tickers[iddx]) {
