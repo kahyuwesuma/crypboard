@@ -1,0 +1,34 @@
+[
+  {
+    "name": "binance",
+    "active": true
+  },
+  {
+    "name": "huobi",
+    "active": true
+  },
+  {
+    "name": "gateio",
+    "active": true
+  },
+  {
+    "name": "kucoin",
+    "active": true
+  },
+  {
+    "name": "mexc",
+    "active": true
+  },
+  {
+    "name": "okx",
+    "active": true
+  },
+  {
+    "name": "bybit",
+    "active": true
+  },
+  {
+    "name": "bitget",
+    "active": true
+  }
+]

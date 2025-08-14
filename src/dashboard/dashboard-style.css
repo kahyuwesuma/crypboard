@@ -1,0 +1,700 @@
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #1e1e2e 0%, #2d1b69 100%);
+        color: #ffffff;
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .market-header {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 12px 16px;
+        flex-shrink: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+        z-index: 100;
+    }
+
+    .header-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #ffffff;
+    }
+
+    .header-data {
+        display: flex;
+        gap: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .header-item {
+        color: #4ade80;
+    }
+
+    .header-item strong {
+        color: #ffffff;
+        margin-right: 4px;
+    }
+
+    .dashboard-container {
+        flex: 1;
+        display: grid;
+        gap: 6px;
+        padding: 8px;
+        min-height: 0;
+        overflow-y: auto;
+        /* Default: 4 columns, 2 rows for 8 exchanges */
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+    }
+
+    /* Responsive grid layouts */
+    @media (max-width: 1200px) {
+        .dashboard-container {
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            max-height: calc(100vh - 60px);
+        }
+    }
+
+    @media (max-width: 900px) {
+        .dashboard-container {
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            max-height: calc(100vh - 80px);
+        }
+    }
+
+    @media (max-width: 600px) {
+        .dashboard-container {
+            grid-template-columns: 1fr;
+            grid-template-rows: auto;
+            max-height: calc(100vh - 100px);
+        }
+        
+        .market-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .header-data {
+            flex-direction: row;
+            gap: 15px;
+            font-size: 0.7rem;
+        }
+    }
+
+    .exchange-section {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        padding: 8px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        min-height: 200px;
+    }
+
+    .exchange-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 6px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        flex-shrink: 0;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .exchange-title {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #ffffff;
+        text-transform: capitalize;
+    }
+
+    .coin-count {
+        background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2px 6px;
+        border-radius: 10px;
+        font-size: 0.65rem;
+        font-weight: 500;
+    }
+
+    .search-container {
+        flex-shrink: 0;
+    }
+
+    .search-input {
+        width: 120px;
+        padding: 3px 6px;
+        font-size: 0.6rem;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+        color: #ffffff;
+        outline: none;
+    }
+
+    .search-input::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .search-input:focus {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: #4ade80;
+    }
+
+    .table-container {
+        flex: 1;
+        overflow: auto;
+        min-height: 0;
+    }
+
+    .crypto-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.65rem;
+    }
+
+    .crypto-table th {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 5px 3px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.6rem;
+        letter-spacing: 0.3px;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .crypto-table td {
+        padding: 3px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        font-size: 0.6rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-align: left;
+    }
+
+    .crypto-table tr:hover td {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .pair-cell {
+        font-weight: 600;
+        color: #4ade80;
+        max-width: 50px;
+        text-align: left;
+    }
+
+    .price-cell {
+        font-weight: 500;
+        color: #60a5fa;
+        max-width: 70px;
+        text-align: right;
+    }
+
+    .gap-cell {
+        font-weight: 600;
+        text-align: center;
+        border-radius: 3px;
+        max-width: 45px;
+        padding: 2px;
+    }
+
+    .gap-positive {
+        background: rgba(74, 222, 128, 0.2);
+        color: #4ade80;
+    }
+
+    .gap-negative {
+        background: rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+    }
+
+    .gap-neutral {
+        background: rgba(156, 163, 175, 0.2);
+        color: #9ca3af;
+    }
+
+    .loading-state {
+        grid-column: 1 / -1;
+        grid-row: 1 / -1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.8rem;
+    }
+
+    .loading-spinner {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: #4ade80;
+        animation: spin 1s ease-in-out infinite;
+        margin-right: 8px;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .no-data {
+        text-align: center;
+        padding: 15px;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.6rem;
+    }
+
+    /* Custom scrollbar */
+    .table-container::-webkit-scrollbar,
+    .dashboard-container::-webkit-scrollbar {
+        width: 3px;
+    }
+
+    .table-container::-webkit-scrollbar-track,
+    .dashboard-container::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+    }
+
+    .table-container::-webkit-scrollbar-thumb,
+    .dashboard-container::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 2px;
+    }
+
+    .table-container::-webkit-scrollbar-thumb:hover,
+    .dashboard-container::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.5);
+    }
+
+    .gap-button {
+        all: unset;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    td.flash-green {
+        animation: flashGreen 0.5s ease;
+    }
+
+    td.flash-red {
+        animation: flashRed 0.5s ease;
+    }
+
+    @keyframes flashGreen {
+        0% { background-color: rgba(0, 255, 0, 0.2); }
+        100% { background-color: transparent; }
+    }
+
+    @keyframes flashRed {
+        0% { background-color: rgba(255, 0, 0, 0.2); }
+        100% { background-color: transparent; }
+    }
+
+    .favorite-toggle.favorited {
+        color: gold;
+        font-weight: bold;
+    }
+
+    .coin-name {
+        transition: color 0.2s ease;
+    }
+
+    .coin-name.favorited {
+        color: gold;
+        font-weight: bold;
+    }
+
+    /* Connection status */
+    .exchange-header svg {
+        stroke: #555;
+    }
+
+    .exchange-header svg.connected {
+        stroke: #28a745;
+    }
+
+    .exchange-header svg.disconnected {
+        stroke: #dc3545;
+    }
+
+    .exchange-header svg.connected .level1,
+    .exchange-header svg.connected .level2,
+    .exchange-header svg.connected .level3,
+    .exchange-header svg.connected .level4 {
+        stroke: #28a745;
+    }
+
+    .exchange-header svg.disconnected .level1,
+    .exchange-header svg.disconnected .level2,
+    .exchange-header svg.disconnected .level3,
+    .exchange-header svg.disconnected .level4 {
+        stroke: #dc3545;
+    }
+
+    .closeOrderbookModal {
+        background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .closeOrderbookModal:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Menu Button and Dropdown Styles */
+    .menu-container {
+        position: relative;
+        display: inline-block;
+    }
+
+    .menu-button {
+        background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .menu-button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        background: linear-gradient(45deg, #7c8df0 0%, #8a5db2 100%);
+    }
+
+    .menu-button svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 100%;
+        margin-top: 8px;
+        min-width: 220px;
+        background: linear-gradient(45deg, #7c8df0 0%, #8a5db2 100%);;
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        z-index: 1000;
+        overflow: hidden;
+        animation: slideDown 0.2s ease;
+    }
+
+    .dropdown-menu.show {
+        display: block;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        color: #ffffff;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .dropdown-item:last-child {
+        border-bottom: none;
+    }
+
+    .dropdown-item:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: #4ade80;
+        padding-left: 20px;
+    }
+
+    .dropdown-item svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        flex-shrink: 0;
+    }
+
+    .dropdown-divider {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        margin: 8px 16px;
+    }
+
+    /* Responsive adjustments for menu */
+    @media (max-width: 600px) {
+        .menu-button {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        .menu-button span {
+            display: none;
+        }
+
+        .dropdown-menu {
+            right: 10px;
+            top: 70px;
+            min-width: 200px;
+        }
+
+        .dropdown-item {
+            padding: 10px 14px;
+            font-size: 0.8rem;
+        }
+
+        .market-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 16px;
+        }
+
+        .header-data {
+            flex-direction: row;
+            gap: 15px;
+            font-size: 0.7rem;
+        }
+    }
+
+/* Modal styles - Fixed */
+#orderbookModal {
+    display: none;
+    position: fixed;
+    top: 5%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #1e1e2e 0%, #2d1b69 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 0;
+    z-index: 10000;
+    width: 95%;
+    max-width: 1400px;
+    max-height: 90vh; /* Fixed: use vh instead of % */
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    display: flex; /* Added: Use flexbox layout */
+    flex-direction: column; /* Added: Column direction */
+}
+
+.modal-header {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 12px 12px 0 0;
+    flex-shrink: 0; /* Added: Prevent header from shrinking */
+}
+
+#modalTitle {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0;
+}
+
+#modalContent {
+    padding: 20px;
+    flex: 1; /* Added: Take remaining space */
+    overflow: hidden; /* Changed: Remove auto, let table handle overflow */
+    display: flex; /* Added: Flexbox for content */
+    flex-direction: column; /* Added: Column direction */
+    min-height: 0; /* Added: Allow shrinking below content size */
+}
+
+.modal-actions {
+    display: flex;
+    gap: 8px;
+}
+
+#currencySwitchBtn,
+#closeOrderbookModal {
+    background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#currencySwitchBtn:hover,
+#closeOrderbookModal:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Modern Orderbook Table Styling - Fixed */
+.orderbook-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 0; /* Added: Remove default margins */
+    table-layout: fixed; /* Added: Fixed table layout for better control */
+}
+
+.orderbook-table thead {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.orderbook-table th {
+    color: white;
+    padding: 12px 8px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    width: auto; /* Added: Let columns size automatically */
+}
+
+.orderbook-table td {
+    padding: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 0.75rem;
+    text-align: center;
+    transition: all 0.2s ease;
+    word-wrap: break-word; /* Added: Handle long content */
+    overflow: hidden; /* Added: Hide overflow */
+    text-overflow: ellipsis; /* Added: Show ellipsis for overflow */
+}
+
+.orderbook-table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.orderbook-table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    transform: scale(1.01);
+}
+
+/* Price columns with enhanced styling */
+.sell-price {
+    color: #ef4444;
+    font-weight: 600;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.buy-price {
+    color: #4ade80;
+    font-weight: 600;
+    background: rgba(74, 222, 128, 0.1);
+}
+
+.sell-qty {
+    color: #f87171;
+    font-weight: 500;
+}
+
+.buy-qty {
+    color: #6ee7b7;
+    font-weight: 500;
+}
+
+
+/* Responsive adjustments for orderbook modal */
+@media (max-width: 768px) {
+    #orderbookModal {
+        width: 98%;
+        max-width: none;
+        top: 2%;
+        max-height: 95vh;
+    }
+    
+    .modal-header {
+        padding: 12px 16px;
+    }
+    
+    #modalTitle {
+        font-size: 1rem;
+    }
+    
+    #modalContent {
+        padding: 16px;
+    }
+    
+    .orderbook-table th,
+    .orderbook-table td {
+        padding: 6px 4px;
+        font-size: 0.7rem;
+    }
+    
+    #currencySwitchBtn,
+    #closeOrderbookModal {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+}

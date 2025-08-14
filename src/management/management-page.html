@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Dashboard Control</title>
+	<link rel="stylesheet" type="text/css" href="management-style.css">
+</head>
+<body>
+	<div class="header-container">
+	    <button id="management-button">
+	        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+	            viewBox="0 0 16 16">
+	            <path fill-rule="evenodd"
+	                d="M15 8a.5.5 0 0 1-.5.5H3.707l3.147 3.146a.5.5 0 0 1-.708.708l-4-4a.498.498 0 0 1-.146-.35v-.008a.498.498 0 0 1 .146-.35l4-4a.5.5 0 0 1 .708.708L3.707 7.5H14.5A.5.5 0 0 1 15 8z" />
+	        </svg>
+	        Kembali ke Dashboard
+	    </button>
+	    <h1>Dashboard Settings</h1>
+	</div>
+
+    <!-- Exchange Section -->
+    <div class="section-container">
+        <div class="section-header" onclick="toggleSection('exchange')">
+            <h2>Exchange</h2>
+            <button class="dropdown-arrow" id="exchange-arrow">▼</button>
+        </div>
+        <div class="section-content" id="exchange-content">
+            <div class="section-inner">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aktif</th>
+                            <th>Exchange</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="exchangeTableBody">
+                        <!-- Data di-render via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pair Coin Section -->
+    <div class="section-container">
+        <div class="section-header" onclick="toggleSection('paircoin')">
+            <div>
+            <h2>Pair Coin</h2>
+            <div id="active-symbol-count" class="symbol-count">
+              Aktif: 0
+            </div>
+            </div>
+            <button class="dropdown-arrow" id="paircoin-arrow">▼</button>
+        </div>
+        <div class="section-content" id="paircoin-content">
+            <div class="section-inner">
+                <!-- Form Tambah -->
+                <form id="formAdd">
+                    <input type="text" id="addSymbol" placeholder="Symbol baru, contoh: TRXUSDT" required>
+                    <button type="submit">Tambah Symbol</button>
+                </form>
+                
+                <!-- Search -->
+                <input type="text" id="searchSymbol" placeholder="Cari symbol..." oninput="loadData()">
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aktif</th>
+                            <th>Symbol</th>
+                            <th>
+                                Status
+                                <button id="sortStatusBtn">⇅</button>
+                            </th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="symbolTableBody">
+                        <!-- Data di-render via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+	<script src="management-renderer.js"></script>
+</body>
+</html>
