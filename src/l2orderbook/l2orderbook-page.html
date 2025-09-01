@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>L2 Orderbook</title>
+    <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+    <link rel="stylesheet" href="l2orderbook-style.css">
+</head>
+<body>
+    <div id="orderbookModal">
+        <div class="modal-header">
+          <h3 id="modalTitle">Order Book</h3>
+          <div class="modal-actions"> 
+              <button id="currencySwitchBtn">Switch to USD</button>
+              <button id="closeOrderbookModal">Close</button>
+          </div>
+        </div>  
+        <div id="modalContent" style="max-height: 70vh; overflow-y: auto;"></div>
+    </div>
+    <div id="marketHeader" class="market-header">
+        <div class="header-data">
+        <div class="header-item"><strong>BTC/IDR:</strong> <span id="btcIdr">-</span></div>
+        <div class="header-item"><strong>BTC/USDT:</strong> <span id="btcUsdt">-</span></div>
+        <div class="header-item"><strong>USDT/IDR:</strong> <span id="usdtIdr">-</span></div>
+        </div>
+    </div>
+    
+    <div id="l2orderbook-container"></div>
+
+    <button id="floating-menu-button" class="floating-menu-button">
+        <svg id="floatingMenuArrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+    </button>
+
+    <!-- Tambahkan link lucide (bisa dari CDN) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <div id="dropdown-menu" class="dropdown-menu">
+    <div class="menu-content">
+        <div class="dropdown-header">
+        <img src="logo.png" alt="Logo" class="sidebar-logo">
+        <span>Crypto Dashboard</span>
+        </div>
+
+        <!-- Group Dashboard -->
+        <div class="menu-group">
+        <div class="menu-group-title">Dashboard</div>
+        <div class="dropdown-item" data-action="last-price">
+            <i data-lucide="dollar-sign"></i>
+            <span>Last Price</span>
+        </div>
+        <div class="dropdown-item" data-action="l2-orderbook">
+            <i data-lucide="list-ordered"></i>
+            <span>L2 Orderbook</span>
+        </div>
+        </div>
+        
+        <!-- Group Management -->
+        <div class="menu-group">
+        <div class="menu-group-title">Management</div>
+        <div class="dropdown-item" data-action="dashboard-management">
+            <i data-lucide="settings"></i>
+            <span>Settings</span>
+        </div>
+        </div>
+    </div>
+
+    <!-- Logout dipisah -->
+    <div class="logout-section">
+        <div class="dropdown-item" data-action="logout">
+        <i data-lucide="log-out"></i>
+        <span>Log Out</span>
+        </div>
+    </div>
+    </div>
+
+    <script>lucide.createIcons()</script>
+    <script src="l2orderbook-renderer.js"></script>
+</body>
+</html>

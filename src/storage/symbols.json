@@ -1,11 +1,11 @@
 [
   {
     "symbol": "1INCHUSDT",
-    "active": false
+    "active": true
   },
   {
     "symbol": "MOODENGUSDT",
-    "active": false
+    "active": true
   },
   {
     "symbol": "AAVEUSDT",
@@ -129,7 +129,7 @@
   },
   {
     "symbol": "APTUSDT",
-    "active": false
+    "active": true
   },
   {
     "symbol": "APUUSDT",
@@ -141,7 +141,7 @@
   },
   {
     "symbol": "ARDRUSDT",
-    "active": false
+    "active": true
   },
   {
     "symbol": "ARKMUSDT",
@@ -149,7 +149,7 @@
   },
   {
     "symbol": "ARUSDT",
-    "active": false
+    "active": true
   },
   {
     "symbol": "ATHUSDT",
@@ -173,7 +173,7 @@
   },
   {
     "symbol": "AURORAUSDT",
-    "active": false
+    "active": true
   },
   {
     "symbol": "AVAUSDT",
@@ -261,7 +261,7 @@
   },
   {
     "symbol": "BNTUSDT",
-    "active": false
+    "active": true
   },
   {
     "symbol": "BNXNEWUSDT",
@@ -281,7 +281,7 @@
   },
   {
     "symbol": "BONKUSDT",
-    "active": false
+    "active": true
   },
   {
     "symbol": "BOTXUSDT",
@@ -301,7 +301,7 @@
   },
   {
     "symbol": "BTGUSDT",
-    "active": false
+    "active": true
   },
   {
     "symbol": "BTRNEWUSDT",
@@ -309,7 +309,7 @@
   },
   {
     "symbol": "BTTUSDT",
-    "active": false
+    "active": true
   },
   {
     "symbol": "C98USDT",
@@ -361,83 +361,83 @@
   },
   {
     "symbol": "CHRUSDT",
-    "active": true
+    "active": false
   },
   {
     "symbol": "CHTUSDT",
-    "active": true
+    "active": false
   },
   {
     "symbol": "CHZUSDT",
-    "active": true
+    "active": false
   },
   {
     "symbol": "CKBUSDT",
-    "active": true
+    "active": false
   },
   {
     "symbol": "CLVUSDT",
-    "active": true
+    "active": false
   },
   {
     "symbol": "CNGUSDT",
-    "active": true
+    "active": false
   },
   {
     "symbol": "COLUSDT",
-    "active": true
+    "active": false
   },
   {
     "symbol": "COMPUSDT",
-    "active": true
+    "active": false
   },
   {
     "symbol": "CONXUSDT",
-    "active": true
+    "active": false
   },
   {
     "symbol": "COTIUSDT",
-    "active": true
+    "active": false
   },
   {
     "symbol": "CREAMUSDT",
-    "active": true
+    "active": false
   },
   {
     "symbol": "CROUSDT",
-    "active": true
+    "active": false
   },
   {
     "symbol": "CRVUSDT",
-    "active": true
+    "active": false
   },
   {
     "symbol": "CTCUSDT",
-    "active": true
+    "active": false
   },
   {
     "symbol": "CTKUSDT",
-    "active": true
+    "active": false
   },
   {
     "symbol": "CTSIUSDT",
-    "active": true
+    "active": false
   },
   {
     "symbol": "CVCUSDT",
-    "active": true
+    "active": false
   },
   {
     "symbol": "CVXUSDT",
-    "active": true
+    "active": false
   },
   {
     "symbol": "CYBERUSDT",
-    "active": true
+    "active": false
   },
   {
     "symbol": "DAIUSDT",
-    "active": true
+    "active": false
   },
   {
     "symbol": "DARUSDT",

@@ -36,7 +36,7 @@ function startIndodaxPolling(symbols, callback) {
       console.error("[Indodax Poll] Error:", err.message);
     }
 
-    setTimeout(() => poll(), 500);
+    setTimeout(() => poll(), 1000);
   };
 
   poll();
@@ -74,7 +74,7 @@ function startIndodaxOrderbookPolling(symbol, callback) {
       callback([]);
     }
 
-    timeoutId = setTimeout(pollOrderbook, 500);
+    timeoutId = setTimeout(pollOrderbook, 1000);
   };
 
   pollOrderbook();
@@ -85,4 +85,93 @@ function startIndodaxOrderbookPolling(symbol, callback) {
     }
   };
 }
-module.exports = { startIndodaxPolling, startIndodaxOrderbookPolling };
+function startIndodaxL2Orderbook(symbols, callback) {
+  const mapSymbolToIndodax = (sym) => sym.toLowerCase().replace("usdt", "") + "_idr";
+
+  const poll = async () => {
+    try {
+      const kursRes = await axios.get("https://indodax.com/api/ticker/usdtidr");
+      const btcRes = await axios.get("https://indodax.com/api/ticker/btcidr")
+      const allRes = await axios.get("https://indodax.com/api/ticker_all");
+
+      const btcIdr = parseFloat(btcRes.data.ticker.last)
+      callback({ type: "header", symbol: "BTCUSDT", price: btcIdr });
+
+      const usdtIdr = parseFloat(kursRes.data.ticker.last);
+      // console.log(usdtIdr)
+      const tickers = allRes.data.tickers;
+      // console.log(tickers)
+      const updates = [];
+
+      for (const sym of symbols) {
+        const iddx = mapSymbolToIndodax(sym);
+        // console.log(iddx)
+        if (tickers[iddx]) {
+          // const idrPrice = parseFloat(tickers[iddx].last);
+          const bestBid = parseFloat(tickers[iddx].buy);  // best bid dari tickers
+          const bestAsk = parseFloat(tickers[iddx].sell); // best ask dari tickers
+          // const usdtPrice = idrPrice / usdtIdr;
+          updates.push({ symbol: sym, bid: bestBid, ask: bestAsk });
+        }
+      }
+      // console.log(updates)
+      callback(updates, usdtIdr);
+    } catch (err) {
+      console.error("[Indodax L2 Orderbook Poll] Error:", err.message);
+    }
+
+    setTimeout(() => poll(), 1000);
+  };
+
+  poll();
+}
+// async function startIndodaxL2Orderbook(targetSymbols, callback) {
+//   // mapping Indodax symbol ke format BTCUSDT, ETHUSDT, dll
+//   const symbolMap = targetSymbols.reduce((acc, sym) => {
+//     acc[sym.toLowerCase()] = sym.toUpperCase();
+//     return acc;
+//   }, {});
+// updates.push({ symbol: "USDTIDR", price: usdtIdr });
+//   const poll = async () => {
+//     try {
+//       // sekali fetch semua ticker
+//       const res = await fetch(`https://indodax.com/api/tickers`);
+//       const data = await res.json();
+
+//       if (!data.tickers) {
+//         console.warn("No tickers data from Indodax");
+//         return;
+//       }
+
+//       // filter sesuai targetSymbols
+//       const results = targetSymbols.map(symbol => {
+//         const pair = symbol.toLowerCase().replace("usdt", "") + "_idr"; // format di tickers pakai _
+//         const ticker = data.tickers[pair];
+
+//         if (!ticker) return null;
+
+//         const bestBid = parseFloat(ticker.buy);  // best bid dari tickers
+//         const bestAsk = parseFloat(ticker.sell); // best ask dari tickers
+
+//         return {
+//           symbol: symbolMap[symbol.toLowerCase()],
+//           bid: bestBid,
+//           ask: bestAsk
+//         };
+//       }).filter(Boolean);
+//       // console.log(results)
+//       callback(results);
+//     } catch (err) {
+//       console.error("Error fetching tickers from Indodax:", err.message);
+//     }
+//   };
+
+//   // jalanin langsung sekali supaya ga nunggu interval pertama
+//   poll();
+//   // ulangi polling
+//   return setInterval(poll, 1000);
+// }
+
+
+
+module.exports = { startIndodaxPolling, startIndodaxOrderbookPolling, startIndodaxL2Orderbook };

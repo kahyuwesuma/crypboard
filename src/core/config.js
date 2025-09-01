@@ -1,102 +1,77 @@
-const { startHuobiWS, stopHuobiWS ,getHuobiOrderbook, closeHuobiOrderbookWS } = require('../shared/exchange/houbi_ws');
-const { startGateioWS, stopGateioWS ,getGateioOrderbook, closeGateioOrderbookWS } = require('../shared/exchange/gateio_ws');
-const { startKucoinWS, closeKucoinWS, getKucoinOrderbook, closeKucoinOrderbookWS } = require('../shared/exchange/kucoin_ws');
-const { startMexcWS, stopMexcWS, getMexcOrderbook, closeMexcOrderbookWS } = require('../shared/exchange/mexc_ws');
-const { startOkxWS, stopOkxWS, getOkxOrderbook, closeOkxOrderbookWS } = require('../shared/exchange/okx_ws');
-const { startBitgetWS, stopBitgetWS ,getBitgetOrderbook, closeBitgetOrderbookWS } = require('../shared/exchange/bitget_ws');
-const { startBybitWS, stopBybitWS, getBybitOrderbook, closeBybitOrderbookWS } = require('../shared/exchange/bybit_ws');
-const { startBinanceWS, stopBinanceWS ,getBinanceOrderbook, closeBinanceOrderbookWS } = require('../shared/exchange/binance_ws');
-
-const priceConfigs = [
+const Huobi = require('../shared/exchange/huobi');
+const Gateio = require('../shared/exchange/gateio');
+const Kucoin = require('../shared/exchange/kucoin');
+const Mexc = require('../shared/exchange/mexc');
+const Okx = require('../shared/exchange/okx');
+const Bybit = require('../shared/exchange/bybit');
+const Binance = require('../shared/exchange/binance');
+const Bitget = require('../shared/exchange/bitget');
+const wsHandler = [
 	{
 		name: 'binance',
-		startFunction: startBinanceWS,
-		stopFunction: stopBinanceWS
+		startWS: Binance.startBinanceWS,
+		stopWS: Binance.stopBinanceWS,
+        getOrderbook: Binance.getBinanceOrderbook,
+        stopOrderbook: Binance.stopBinanceOrderbook,
+		getConn: Binance.getBinanceConnection,
+		startBtcOnly: Binance.startBTCWS,
+		stopBtcOnly: Binance.stopBTCWS,
 	},
 	{
 		name: 'huobi',
-		startFunction: startHuobiWS,
-		stopFunction: stopHuobiWS
+		startWS: Huobi.startHuobiWS,
+        getOrderbook: Huobi.getHuobiOrderbook,
+        stopOrderbook: Huobi.stopHuobiOrderbook,
+		getConn: Huobi.getHuobiConnection
 	},
 	{
 		name: 'gateio',
-		startFunction: startGateioWS,
-		stopFunction: stopGateioWS
+		startWS: Gateio.startGateioWS,
+		stopWS: Gateio.stopGateioWS,
+        getOrderbook: Gateio.getGateioOrderbook,
+        stopOrderbook: Gateio.stopGateioOrderbook,
+		getConn: Gateio.getGateioConnection
 	},
 	{
 		name: 'kucoin',
-		startFunction: startKucoinWS,
-		stopFunction: closeKucoinWS
+		startWS: Kucoin.startKucoinWS,
+		stopWS: Kucoin.stopKucoinWS,
+        getOrderbook: Kucoin.getKucoinOrderbook,
+        stopOrderbook: Kucoin.stopKucoinOrderbook,
+		getConn: Kucoin.getKucoinConnection
 	},
 	{
 		name: 'mexc',
-		startFunction: startMexcWS,
-		stopFunction: stopMexcWS
+		startWS: Mexc.startMexcWS,
+		stopWS: Mexc.stopMexcWS,
+		getOrderbook: Mexc.getMexcOrderbook,
+		stopOrderbook: Mexc.stopMexcOrderbook,
+		getConn: Mexc.getMexcConnection
 	},
 	{
 		name: 'okx',
-		startFunction: startOkxWS,
-		stopFunction: stopOkxWS
+		startWS: Okx.startOkxWS,
+		stopWS: Okx.stopOkxWS,
+		getOrderbook: Okx.getOkxOrderbook,
+		stopOrderbook: Okx.stopOkxOrderbook,
+		getConn: Okx.getOkxConnection
 	},
 	{
 		name: 'bitget',
-		startFunction: startBitgetWS,
-		stopFunction: stopBitgetWS
+		startWS: Bitget.startBitgetWS,
+		stopWS: Bitget.stopBitgetWS,
+        getOrderbook: Bitget.getBitgetOrderbook,
+        stopOrderbook: Bitget.stopBitgetOrderbook,
+		getConn: Bitget.getBitgetConnection
 	},
 	{
 		name: 'bybit',
-		startFunction: startBybitWS,
-		stopFunction: stopBybitWS
+		startWS: Bybit.startBybitWS,
+		stopWS: Bybit.stopBybitWS,
+		getOrderbook: Bybit.getBybitOrderbook,
+		stopOrderbook: Bybit.stopBybitOrderbook,
+		getConn: Bybit.getBybitConnection
 	}
 ];
 
-const orderbookConfigs = [
-    {
-        name: 'binance',
-        startFunction: getBinanceOrderbook,
-        closeFunction: closeBinanceOrderbookWS
-    },
-    {
-        name: 'huobi',
-        startFunction: getHuobiOrderbook,
-        closeFunction: closeHuobiOrderbookWS
-    },
-    {
-        name: 'gateio',
-        startFunction: getHuobiOrderbook,
-        closeFunction: closeHuobiOrderbookWS
-    },
-    {
-        name: 'kucoin',
-        startFunction: getKucoinOrderbook,
-        closeFunction: closeKucoinOrderbookWS
-    },
-    {
-        name: 'mexc',
-        startFunction: getMexcOrderbook,
-        closeFunction: closeMexcOrderbookWS
-    },
-    {
-        name: 'okx',
-        startFunction: getOkxOrderbook,
-        closeFunction: closeOkxOrderbookWS
-    },
-    {
-        name: 'bitget',
-        startFunction: getBitgetOrderbook,
-        closeFunction: closeBitgetOrderbookWS
-    },
-    {
-        name: 'bybit',
-        startFunction: getBybitOrderbook,
-        closeFunction: closeBybitOrderbookWS
-    },
-];
-
-const targetSymbols = [
-	"BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT",
-	"ADAUSDT", "AVAXUSDT", "DOTUSDT", "LINKUSDT", "DOGEUSDT",
-	"LTCUSDT", "BCHUSDT", "VETUSDT", "UNIUSDT", "CHZUSDT",
-	"SANDUSDT", "MANAUSDT", "AXSUSDT", "ZILUSDT", "FILUSDT"
-]
-module.exports = { priceConfigs, orderbookConfigs, targetSymbols };
+module.exports = { wsHandler };

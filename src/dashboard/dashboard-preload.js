@@ -2,9 +2,11 @@ const path = require('path');
 const { formatPrice } = require(path.join(__dirname, '../shared/utils/helper.js'));
 const { contextBridge, ipcRenderer } = require('electron');
 
-
 contextBridge.exposeInMainWorld('dashboardAPI', {
-  navigate: (target) => ipcRenderer.send('navigate', target)
+  navigate: (target) => ipcRenderer.send('navigate', target),
+  getActiveExchange: () => ipcRenderer.invoke('dashboard:get-active-exchange'),
+  sessionCheck: () => ipcRenderer.invoke('dashboard:session-check', {}),
+  clearToken: () => ipcRenderer.invoke('dashboard:logout', {})
 });
 
 contextBridge.exposeInMainWorld('utils', {
@@ -12,6 +14,7 @@ contextBridge.exposeInMainWorld('utils', {
 });
 contextBridge.exposeInMainWorld('indodaxAPI', {
   onHeaderData: (callback) => ipcRenderer.on('header-data', (_, data) => callback(data)),
+  onNetworkData: (callback) => ipcRenderer.on('network-data', (_, data) => callback(data))
 });
 
 contextBridge.exposeInMainWorld('electron', {

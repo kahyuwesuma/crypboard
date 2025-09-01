@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Electron Login</title>
+  <link rel="stylesheet" href="auth-style.css">
+</head>
+<body>
+  <div class="login-container">
+    <!-- Logo and App Name Section -->
+    <div class="app-header">
+      <div class="app-logo">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="24" cy="24" r="22" stroke="url(#logoGradient)" stroke-width="2" fill="rgba(102, 126, 234, 0.1)"/>
+          <circle cx="24" cy="24" r="14" fill="url(#logoGradient)"/>
+          <circle cx="24" cy="24" r="8" fill="white" opacity="0.9"/>
+          <defs>
+            <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#667eea"/>
+              <stop offset="100%" style="stop-color:#764ba2"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <h1 class="app-name">Crypto Dashboard</h1>
+    </div>
+    
+    <div class="input-group">
+      <label for="username">Username</label>
+      <input type="text" id="username" placeholder="Enter username" required>
+    </div>
+    <div class="input-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="Enter password" required>
+    </div>
+    <button id="loginBtn">Sign In</button>
+    <div id="status"></div>
+  </div>
+  <script src="auth-renderer.js"></script>
+</body>
+</html>

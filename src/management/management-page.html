@@ -2,38 +2,145 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>Manajemen Coin</title>
+	<title>Dashboard Control</title>
+    <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 	<link rel="stylesheet" type="text/css" href="management-style.css">
 </head>
 <body>
-    <h1>Manajemen Coin</h1>
-    <button id="management-button">Dashboard</button>
-    
-    <!-- Form Tambah -->
-    <form id="formAdd">
-        <input type="text" id="addSymbol" placeholder="Symbol baru, contoh: TRXUSDT" required>
-        <button type="submit">Tambah Symbol</button>
-    </form>
-    
-    <!-- Search -->
-    <input type="text" id="searchSymbol" placeholder="Cari symbol..." oninput="loadSymbols()">
-	<table>
-		<thead>
-			<tr>
-				<th>No</th>
-				<th>Symbol</th>
-		      	<th>
-		        	Status
-		        	<button id="sortStatusBtn" style="padding:2px 5px; margin-left:5px;">⇅</button>
-		      	</th>
-				<th>Aksi</th>
-			</tr>
-		</thead>
-		<tbody id="symbolTableBody">
-			<!-- Data di-render via JS -->
-		</tbody>
-	</table>
 
+    <div class="tab-container">
+        <div class="tab-nav-wrapper">
+        <nav class="tab-nav">
+            <button class="tab-button active" data-tab="exchange">Exchange</button>
+            <button class="tab-button" data-tab="paircoin">
+                <div>
+                    Pair Coin
+                    <span id="active-symbol-count" class="symbol-count">Aktif: 0</span>
+                </div>
+            </button>
+            <button class="tab-button" data-tab="credentials">Crendentials</button>
+            <div class="tab-slider"></div>
+        </nav>
+        </div>
+
+<!-- Gabungan Exchange + L2 Filter -->
+<div id="exchange" class="tab-content active">
+  <div class="table-wrapper-exchange">
+    <!-- Exchange Table -->
+    <h3>General For Last Price & L2 Orderbook</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Aktif</th>
+          <th>Exchange</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="exchangeTableBody">
+      </tbody>
+    </table>
+
+<div style="height: 20px;"></div>
+    <!-- L2 Filter Table -->
+    <h3>L2 Orderbook</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Exchange</th>
+          <th>IDX - EXCHANGE</th>
+          <th>EXCHANGE - IDX</th>
+        </tr>
+      </thead>
+      <tbody id="l2TableBody">
+      </tbody>
+    </table>
+  </div>
+</div>
+
+        <!-- Pair Coin Tab Content -->
+        <div id="paircoin" class="tab-content">
+            <form id="formAdd">
+                <input type="text" id="addSymbol" placeholder="Symbol baru, contoh: TRXUSDT" required>
+                <button type="submit">Tambah Symbol</button>
+            </form>
+            
+            <input type="text" id="searchSymbol" placeholder="Cari symbol..." oninput="loadData()">
+            <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Aktif</th>
+                        <th>Symbol</th>
+                        <th>
+                            Status
+                            <button id="sortStatusBtn">⇅</button>
+                        </th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="symbolTableBody">
+
+                </tbody>
+            </table>
+            </div>
+        </div>
+
+        <!-- L2 Filter Tab Content -->
+        <div id="credentials" class="tab-content">
+            <div id="manage-credentials"></div>
+        </div>
+    </div>
+    <button id="floating-menu-button" class="floating-menu-button">
+        <svg id="floatingMenuArrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+    </button>
+
+    <!-- Tambahkan link lucide (bisa dari CDN) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <div id="dropdown-menu" class="dropdown-menu">
+    <div class="menu-content">
+        <div class="dropdown-header">
+        <img src="logo.png" alt="Logo" class="sidebar-logo">
+        <span>Crypto Dashboard</span>
+        </div>
+
+        <!-- Group Dashboard -->
+        <div class="menu-group">
+        <div class="menu-group-title">Dashboard</div>
+        <div class="dropdown-item" data-action="last-price">
+            <i data-lucide="dollar-sign"></i>
+            <span>Last Price</span>
+        </div>
+        <div class="dropdown-item" data-action="l2-orderbook">
+            <i data-lucide="list-ordered"></i>
+            <span>L2 Orderbook</span>
+        </div>
+        </div>
+        
+        <!-- Group Management -->
+        <div class="menu-group">
+        <div class="menu-group-title">Management</div>
+        <div class="dropdown-item" data-action="dashboard-management">
+            <i data-lucide="settings"></i>
+            <span>Settings</span>
+        </div>
+        </div>
+    </div>
+
+    <!-- Logout dipisah -->
+    <div class="logout-section">
+        <div class="dropdown-item" data-action="logout">
+        <i data-lucide="log-out"></i>
+        <span>Log Out</span>
+        </div>
+    </div>
+    </div>
+
+
+    <script>lucide.createIcons()</script>
 	<script src="management-renderer.js"></script>
 </body>
 </html>

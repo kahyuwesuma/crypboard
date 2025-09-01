@@ -1,0 +1,289 @@
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    background: linear-gradient(270deg, #1e1e2e, #2d1b69, #764ba2, #667eea);
+    background-size: 800% 800%;
+    animation: gradientFlow 20s ease infinite;
+    padding: 16px;
+}
+
+/* Gradient looping ambience */
+@keyframes gradientFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Card Container - Adjusted colors to match gradient */
+.login-container {
+    background: linear-gradient(145deg, rgba(30, 30, 46, 0.9), rgba(45, 27, 105, 0.8));
+    border: 1px solid rgba(118, 75, 162, 0.3);
+    padding: 36px 28px;
+    border-radius: 18px;
+    box-shadow: 
+    0 12px 28px rgba(0, 0, 0, 0.4),
+    0 0 40px rgba(118, 75, 162, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    text-align: center;
+    width: 100%;
+    max-width: 500px;
+    backdrop-filter: blur(15px);
+    animation: fadeIn 0.8s ease-out;
+    position: relative;
+}
+
+/* Subtle glow effect */
+.login-container::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #667eea, #764ba2, #2d1b69, #1e1e2e);
+    border-radius: 20px;
+    z-index: -1;
+    opacity: 0.3;
+    animation: borderGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes borderGlow {
+    0% { opacity: 0.2; }
+    100% { opacity: 0.4; }
+}
+
+.login-container h2 {
+    color: #e2e8f0;
+    font-weight: 600;
+    margin-bottom: 22px;
+    font-size: 1.2rem;
+    letter-spacing: 0.3px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* App Header Styles */
+.app-header {
+margin-bottom: 32px;
+padding-bottom: 24px;
+display: flex;
+justify-content: center;
+align-items: center;  
+gap: 12px;            
+border-bottom: 1px solid rgba(118, 75, 162, 0.2);
+}
+
+.app-logo {
+margin-bottom: 0;    
+animation: logoFloat 3s ease-in-out infinite alternate;
+}
+
+.app-name {
+color: #e2e8f0;
+font-size: 1.8rem;
+font-weight: 700;
+letter-spacing: 0.5px;
+background: linear-gradient(45deg, #667eea, #764ba2, #e2e8f0);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+text-shadow: none;
+animation: logoFloat 3s ease-in-out infinite alternate;
+}
+
+
+@keyframes logoFloat {
+    0% { transform: translateY(3px); }
+    100% { transform: translateY(-3px); }
+}
+
+
+/* Input - Enhanced to match theme */
+.input-group {
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    font-size: 0.8rem;
+    color: rgba(226, 232, 240, 0.9);
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 11px 12px;
+    font-size: 0.9rem;
+    border-radius: 10px;
+    border: 1px solid rgba(118, 75, 162, 0.4);
+    background: rgba(30, 30, 46, 0.6);
+    color: #e2e8f0;
+    outline: none;
+    transition: all 0.25s ease;
+}
+
+.input-group input::placeholder {
+    color: rgba(226, 232, 240, 0.5);
+}
+
+.input-group input:focus {
+    border-color: #667eea;
+    background: rgba(45, 27, 105, 0.4);
+    box-shadow: 
+    0 0 12px rgba(102, 126, 234, 0.4),
+    inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Button - Matching gradient theme */
+button {
+    width: 100%;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 13px;
+    margin-top: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(118, 75, 162, 0.3);
+}
+
+button:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(45deg, #7c3aed, #8b5cf6);
+    box-shadow: 
+    0 8px 16px rgba(118, 75, 162, 0.5),
+    0 0 20px rgba(102, 126, 234, 0.3);
+}
+
+button:active {
+    transform: translateY(0px);
+}
+
+#status {
+    margin-top: 16px;
+    font-size: 0.85rem;
+    color: rgba(226, 232, 240, 0.85);
+    min-height: 18px;
+}
+
+/* Fade In */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(25px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsif */
+@media (max-width: 480px) {
+    .login-container {
+    padding: 28px 22px;
+    border-radius: 14px;
+    }
+    .app-name {
+    font-size: 1.5rem;
+    }
+    .login-container h2 {
+    font-size: 1.1rem;
+    }
+    .app-logo svg {
+    width: 40px;
+    height: 40px;
+    }
+}
+
+/* ===== Custom Alert Modern Style ===== */
+.custom-auth-alert {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.35); /* semi transparan gelap */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeIn 0.25s ease;
+  backdrop-filter: blur(4px); /* efek blur belakang */
+}
+
+.custom-auth-alert-content {
+  background: rgba(255, 255, 255, 0.1); /* semi transparan */
+  padding: 22px 26px;
+  border-radius: 18px;
+  width: 90%;
+  max-width: 340px;
+  text-align: center;
+  color: #fff;
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  animation: scaleIn 0.25s ease-out;
+}
+
+.custom-auth-alert-content h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #fff;
+}
+
+.custom-auth-alert-content p {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+
+/* Button ala iOS/Android */
+.custom-auth-alert-buttons {
+  display: flex;
+  justify-content: space-evenly;
+  gap: 12px;
+}
+
+.custom-auth-alert-buttons button {
+  flex: 1;
+  padding: 10px 0;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  font-size: 0.95rem;
+}
+
+.custom-auth-alert-buttons button.primary {
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  color: #fff;
+}
+
+.custom-auth-alert-buttons button.primary:hover {
+  background: linear-gradient(45deg, #7c3aed, #8b5cf6);
+}
+
+.custom-auth-alert-buttons button.secondary {
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+}
+
+.custom-auth-alert-buttons button.secondary:hover {
+  background: rgba(255,255,255,0.25);
+}
+
+/* Animasi */
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}

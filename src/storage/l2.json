@@ -1,0 +1,34 @@
+{
+  "binance": {
+    "idx-binance": true,
+    "binance-idx": false
+  },
+  "huobi": {
+    "idx-huobi": true,
+    "huobi-idx": false
+  },
+  "gateio": {
+    "idx-gateio": true,
+    "gateio-idx": false
+  },
+  "kucoin": {
+    "idx-kucoin": true,
+    "kucoin-idx": false
+  },
+  "mexc": {
+    "idx-mexc": true,
+    "mexc-idx": false
+  },
+  "okx": {
+    "idx-okx": true,
+    "okx-idx": false
+  },
+  "bybit": {
+    "idx-bybit": true,
+    "bybit-idx": false
+  },
+  "bitget": {
+    "idx-bitget": true,
+    "bitget-idx": false
+  }
+}

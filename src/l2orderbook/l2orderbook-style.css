@@ -1,0 +1,835 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1e1e2e 0%, #2d1b69 100%);
+    color: #ffffff;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Container Styling */
+#l2orderbook-container {
+    display: flex;
+    padding: 8px;
+    flex-direction: column;
+    height: 100vh; /* selalu ikut layar */
+    overflow: hidden; /* biar scroll hanya di table */
+}
+.virtual-scroll-container {
+    flex: 1;          /* biar ngisi penuh ruang tersisa */
+    height: auto;     /* jangan pakai fixed height */
+    overflow-y: auto; /* tetap bisa scroll kalau isi kebanyakan */
+    position: relative;
+}
+
+/* Exchange Section */
+.exchange-section {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 8px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    flex-direction: column;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+/* Exchange Header */
+.exchange-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+}
+
+.exchange-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Search Container */
+.search-container {
+    flex-shrink: 0;
+}
+
+.search-input {
+    width: 140px;
+    padding: 4px 8px;
+    font-size: 0.7rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    color: #ffffff;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.search-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.search-input:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #4ade80;
+    box-shadow: 0 0 8px rgba(74, 222, 128, 0.3);
+}
+
+/* Table Container */
+.table-container {
+    flex: 1;
+    overflow: auto;
+    min-height: 0;
+    display: flex;        /* penting */
+    flex-direction: column;
+    /* max-height: 600px; */
+}
+
+.table-container::-webkit-scrollbar {
+    width: 3px;
+    height: 3px;
+}
+
+.table-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* Crypto Table */
+.crypto-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.7rem;
+    table-layout: fixed;
+}
+
+.favorite-toggle {
+  color: gray;
+  font-size: 1rem;
+}
+.favorite-toggle.favorited {
+  color: gold;
+}
+
+.crypto-table thead th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 6px 4px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.65rem;
+    letter-spacing: 0.3px;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-transform: uppercase;
+}
+
+.crypto-table tbody td {
+    padding: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 0.65rem;
+    vertical-align: text-top;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: all 0.2s ease;
+}
+
+/* Hapus/override rule lama */
+.crypto-table tbody tr:hover td {
+    background-color: inherit; /* reset supaya gak mewarnai semua */
+}
+
+/* Tambahkan rule baru */
+.crypto-table tbody td:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+/* First column (Pair Coin) styling */
+.crypto-table tbody td:first-child {
+    font-weight: 600;
+    color: #4ade80;
+    text-align: left;
+    max-width: 80px;
+    /* position: sticky; */
+    left: 0;
+    background: rgba(255, 255, 255, 0.05);
+    z-index: 2;
+    border-right: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.crypto-table tbody tr:hover td:first-child {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Gap Values Styling (legacy support) */
+.clickable-gap {
+  display: block;       /* jadi block element */
+  width: 100%;          /* lebar penuh cell */
+  height: 100%;         /* tinggi penuh cell */
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-radius: 3px;
+  font-weight: 600;
+  font-size: 0.65rem;
+  cursor: pointer;
+  text-align: center;
+  background: transparent;     /* tanpa background */
+  transition: background-color 0.2s ease;
+}
+
+
+.clickable-gap:hover {
+    transform: scale(1.05);
+    background-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Color variants for gaps based on style attribute */
+.clickable-gap[style*="lightgreen"] {
+    background: rgba(74, 222, 128, 0.2);
+    color: #4ade80;
+}
+
+.clickable-gap[style*="red"] {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+.clickable-gap[style*="yellow"] {
+    background: rgba(251, 191, 36, 0.2);
+    color: #fbbf24;
+}
+
+.clickable-gap[style*="white"] {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+}
+
+/* No Data State */
+.no-data {
+    text-align: center;
+    padding: 20px !important;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.7rem;
+    font-style: italic;
+}
+
+/* Loading Animation */
+@keyframes loading {
+    0% { opacity: 0.5; }
+    50% { opacity: 1; }
+    100% { opacity: 0.5; }
+}
+
+.crypto-table tbody tr:has(.no-data) {
+    animation: loading 2s infinite;
+}
+
+/* Flash animations for updates */
+.crypto-table td.flash-green {
+    animation: flashGreen 0.5s ease;
+}
+
+.crypto-table td.flash-red {
+    animation: flashRed 0.5s ease;
+}
+
+@keyframes flashGreen {
+    0% { background-color: rgba(74, 222, 128, 0.1); }
+    100% { background-color: transparent; }
+}
+
+@keyframes flashRed {
+    0% { background-color: rgba(239, 68, 68, 0.1); }
+    100% { background-color: transparent; }
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    #l2orderbook-container {
+        padding: 6px;
+    }
+    
+    .search-input {
+        width: 120px;
+        font-size: 0.65rem;
+    }
+    
+    .exchange-title {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 900px) {
+    .crypto-table {
+        font-size: 0.65rem;
+        min-width: 700px;
+    }
+    
+    .crypto-table thead th,
+    .crypto-table tbody td {
+        padding: 3px;
+        font-size: 0.6rem;
+    }
+    
+    .search-input {
+        width: 100px;
+        padding: 3px 6px;
+        font-size: 0.6rem;
+    }
+    
+    .exchange-title {
+        font-size: 0.85rem;
+    }
+    
+    .clickable-gap {
+        font-size: 0.55rem;
+        padding: 1px 3px;
+        min-width: 40px;
+    }
+}
+
+@media (max-width: 600px) {
+    #l2orderbook-container {
+        padding: 4px;
+        height: calc(100vh - 80px);
+    }
+    
+    .exchange-header {
+        flex-direction: column;
+        gap: 6px;
+        align-items: stretch;
+    }
+    
+    .search-input {
+        width: 100%;
+        padding: 4px 8px;
+    }
+    
+    .crypto-table {
+        font-size: 0.6rem;
+        min-width: 600px;
+    }
+    
+    .crypto-table thead th,
+    .crypto-table tbody td {
+        padding: 2px;
+        font-size: 0.55rem;
+    }
+    
+    .exchange-title {
+        font-size: 0.8rem;
+        text-align: center;
+    }
+    
+    .clickable-gap {
+        font-size: 0.5rem;
+        padding: 1px 2px;
+        min-width: 35px;
+    }
+    
+    .table-container {
+        max-height: 400px;
+    }
+}
+
+@media (max-width: 480px) {
+    .crypto-table {
+        font-size: 0.55rem;
+        min-width: 500px;
+    }
+    
+    .crypto-table thead th,
+    .crypto-table tbody td {
+        padding: 1px;
+        font-size: 0.5rem;
+    }
+    
+    .clickable-gap {
+        font-size: 0.45rem;
+        min-width: 30px;
+    }
+    
+    .crypto-table tbody td:first-child {
+        max-width: 60px;
+    }
+}
+
+.market-header {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 16px 16px;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 100;
+}
+
+.header-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.header-data {
+    display: flex;
+    gap: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.header-item {
+    color: #4ade80;
+}
+
+.header-item strong {
+    color: #ffffff;
+    margin-right: 4px;
+}
+#orderbookModal {
+    display: none;
+    position: fixed;
+    top: 5%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #1e1e2e 0%, #2d1b69 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 0;
+    z-index: 10000;
+    width: 95%;
+    max-width: 1400px;
+    max-height: 90vh; /* Fixed: use vh instead of % */
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    display: flex; /* Added: Use flexbox layout */
+    flex-direction: column; /* Added: Column direction */
+}
+
+.modal-header {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 12px 12px 0 0;
+    flex-shrink: 0; /* Added: Prevent header from shrinking */
+}
+
+#modalTitle {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0;
+}
+
+#modalContent {
+    padding: 20px;
+    flex: 1; 
+    overflow: hidden;
+    display: flex; 
+    flex-direction: column; 
+    min-height: 0; 
+}
+
+.modal-actions {
+    display: flex;
+    gap: 8px;
+}
+
+#currencySwitchBtn,
+#closeOrderbookModal {
+    background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#currencySwitchBtn:hover,
+#closeOrderbookModal:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.orderbook-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 0;
+    table-layout: fixed;
+}
+
+.orderbook-table thead {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.orderbook-table th {
+    color: white;
+    padding: 12px 8px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    width: auto;
+}
+
+.orderbook-table td {
+    padding: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 0.75rem;
+    text-align: center;
+    transition: all 0.2s ease;
+    word-wrap: break-word;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.orderbook-table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.orderbook-table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    transform: scale(1.01);
+}
+
+.sell-price {
+    color: #ef4444;
+    font-weight: 600;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.buy-price {
+    color: #4ade80;
+    font-weight: 600;
+    background: rgba(74, 222, 128, 0.1);
+}
+
+.sell-qty {
+    color: #f87171;
+    font-weight: 500;
+}
+
+.buy-qty {
+    color: #6ee7b7;
+    font-weight: 500;
+}
+
+.gap-positive {
+    background: rgba(74, 222, 128, 0.2);
+    color: #4ade80;
+}
+
+.gap-negative {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+.gap-neutral {
+    background: rgba(156, 163, 175, 0.2);
+    color: #9ca3af;
+}
+@media (max-width: 768px) {
+    #orderbookModal {
+        width: 98%;
+        max-width: none;
+        top: 2%;
+        max-height: 95vh;
+    }
+    
+    .modal-header {
+        padding: 12px 16px;
+    }
+    
+    #modalTitle {
+        font-size: 1rem;
+    }
+    
+    #modalContent {
+        padding: 16px;
+    }
+    
+    .orderbook-table th,
+    .orderbook-table td {
+        padding: 6px 4px;
+        font-size: 0.7rem;
+    }
+    
+    #currencySwitchBtn,
+    #closeOrderbookModal {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+}
+.closeOrderbookModal {
+    background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.closeOrderbookModal:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.dropdown-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: white;
+  background: linear-gradient(135deg, #2d1b69, #1e1e2e);
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+}
+
+.sidebar-logo {
+  width: 20px; 
+  height: 20px;
+  object-fit: contain;
+}
+
+.dropdown-menu {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* konten di atas, logout di bawah */
+  position: fixed;
+  top: 0;
+  right: -280px;
+  width: 260px;
+  height: 100vh;
+  background: linear-gradient(135deg, rgba(30,30,46,0.9) 0%, rgba(45,27,105,0.85) 100%);
+  border-left: 1px solid rgba(255,255,255,0.15);
+  box-shadow: -4px 0 12px rgba(0,0,0,0.3);
+  z-index: 2000;
+  overflow-y: auto;
+  transition: none;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    color: #ffffff;
+    font-size: 1.125rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #4ade80;
+    padding-left: 20px;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    margin: 8px 16px;
+}
+.dropdown-item.active {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border-left: 4px solid #667eea;
+  font-weight: bold;
+}
+.dropdown-menu.show {
+}
+#menuArrow {
+  transition: transform 0.1s ease;
+}
+.menu-content {
+  flex-grow: 1; /* biar isi ngisi ruang */
+}
+.logout-section {
+  border-top: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  margin-bottom: 50px;
+}
+
+.menu-button.open #menuArrow {
+  transform: rotate(180deg);
+}
+
+.floating-menu-button {
+  position: fixed;
+  top: 25px;
+  right: 0px;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 50px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 10px 0 0 10px;
+  cursor: pointer;
+  z-index: 1999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: -2px 0 8px rgba(0,0,0,0.3);
+  transition: none;
+}
+
+.floating-menu-button svg {
+  color: white;
+  transition: transform 0.3s ease;
+}
+
+.floating-menu-button.open svg {
+  transform: rotate(180deg);
+}
+
+.menu-group {
+  margin-top: 10px;
+}
+
+.menu-group-title {
+  font-size: 1rem;
+  font-weight: bold;
+  color: rgba(255,255,255,0.6);
+  padding: 8px 15px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  margin-bottom: 5px;
+}
+
+/* ===== Custom Alert Modern Style ===== */
+.custom-auth-alert {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.35); /* semi transparan gelap */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeIn 0.25s ease;
+  backdrop-filter: blur(4px); /* efek blur belakang */
+}
+
+.custom-auth-alert-content {
+  background: rgba(255, 255, 255, 0.1); /* semi transparan */
+  padding: 22px 26px;
+  border-radius: 18px;
+  width: 90%;
+  max-width: 340px;
+  text-align: center;
+  color: #fff;
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  animation: scaleIn 0.25s ease-out;
+}
+
+.custom-auth-alert-content h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #fff;
+}
+
+.custom-auth-alert-content p {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+
+/* Button ala iOS/Android */
+.custom-auth-alert-buttons {
+  display: flex;
+  justify-content: space-evenly;
+  gap: 12px;
+}
+
+.custom-auth-alert-buttons button {
+  flex: 1;
+  padding: 10px 0;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  font-size: 0.95rem;
+}
+
+.custom-auth-alert-buttons button.primary {
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  color: #fff;
+}
+
+.custom-auth-alert-buttons button.primary:hover {
+  background: linear-gradient(45deg, #7c3aed, #8b5cf6);
+}
+
+.custom-auth-alert-buttons button.secondary {
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+}
+
+.custom-auth-alert-buttons button.secondary:hover {
+  background: rgba(255,255,255,0.25);
+}
+
+/* Animasi */
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
